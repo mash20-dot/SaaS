@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NkwaBiz - Simple Business Management</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+            color: #333;
+            background: #fafafa;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 20px 0;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            color: #000;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .header-btn {
+            background: transparent;
+            border: 1px solid #ddd;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main {
+            background: white;
+            margin: 40px auto;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .hero {
+            padding: 80px 40px;
+            text-align: left;
+            max-width: 500px;
+        }
+
+        .hero h1 {
+            font-size: 42px;
+            font-weight: 700;
+            color: #000;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+
+        .signup-btn {
+            background: #000;
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+
+        .signup-btn:hover {
+            background: #333;
+        }
+
+        /* Features Section */
+        .features {
+            background: #f8f9fa;
+            padding: 60px 40px;
+        }
+
+        .features-header {
+            margin-bottom: 40px;
+        }
+
+        .features-label {
+            background: #9ACD32;
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .features h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .features-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .feature-box {
+            background: white;
+            padding: 30px 30px 60px 30px;
+            border-radius: 12px;
+            border: 1px solid #e5e5e5;
+            position: relative;
+        }
+
+        .feature-box.dark {
+            background: #000;
+            color: white;
+        }
+
+        .feature-box.dark .feature-title {
+            color: white;
+        }
+
+        .feature-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 8px;
+        }
+
+        .feature-desc {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .feature-box.dark .feature-desc {
+            color: #ccc;
+        }
+
+        .learn-more {
+            position: absolute;
+            bottom: 20px;
+            left: 30px;
+            background: #333;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .feature-box.dark .learn-more {
+            background: #555;
+        }
+
+        /* About Section */
+        .about {
+            background: white;
+            padding: 60px 40px;
+        }
+
+        .about-content {
+            max-width: 600px;
+        }
+
+        .about h2 {
+            font-size: 24px;
+            color: #000;
+            margin-bottom: 20px;
+        }
+
+        .about-text {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        /* CTA Section */
+        .cta {
+            background: #f0f0f0;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 24px;
+            color: #000;
+            margin-bottom: 15px;
+        }
+
+        .cta p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* Footer */
+        .footer {
+            background: #000;
+            color: #999;
+            padding: 30px 0;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .footer p {
+            margin-bottom: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .hero {
+                padding: 60px 30px;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .features {
+                padding: 40px 30px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta {
+                padding: 40px 30px;
+            }
+
+            .about {
+                padding: 40px 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <nav class="nav">
+                    <div class="logo">NkwaBiz</div>
+                    <ul class="nav-menu">
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#about">About</a></li>
+                    </ul>
+                    <a href="#" class="header-btn">Get Started</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="container">
+            <div class="main">
+                <!-- Hero Section -->
+                <section class="hero">
+                    <h1>Moving businesses from paper to digital</h1>
+                    <p>Leave behind manual inventory tracking, handwritten records, and spreadsheet chaos. Transform
+                        your business with digital tools designed for modern operations and real growth.</p>
+                    <a href="#" class="signup-btn" @click="handleSignup">Start free trial</a>
+                </section>
+
+                <!-- Features Section -->
+                <section class="features" id="features">
+                    <div class="features-header">
+                        <div class="features-label">Features</div>
+                        <h2>Everything you need to run your business</h2>
+                        <p class="features-subtitle">Simple tools that help businesses manage inventory and track
+                            performance.</p>
+                    </div>
+
+                    <div class="features-grid">
+                        <div class="feature-box">
+                            <div class="feature-title">Product Management</div>
+                            <p class="feature-desc">Add, edit and organize your products with our simple interface.</p>
+                            <button class="learn-more">→</button>
+                        </div>
+
+                        <div class="feature-box dark">
+                            <div class="feature-title">Smart Filtering</div>
+                            <p class="feature-desc">Find products quickly with advanced filtering and search options.
+                            </p>
+                            <button class="learn-more">→</button>
+                        </div>
+
+                        <div class="feature-box dark">
+                            <div class="feature-title">Stock Control</div>
+                            <p class="feature-desc">Monitor quantities and get alerts when stock runs low.</p>
+                            <button class="learn-more">→</button>
+                        </div>
+
+                        <div class="feature-box">
+                            <div class="feature-title">Sales Analytics</div>
+                            <p class="feature-desc">Track your sales history and monitor business performance.</p>
+                            <button class="learn-more">→</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- About Section -->
+                <section class="about" id="about">
+                    <div class="about-content">
+                        <div class="features-label">About</div>
+                        <h2>Built for businesses ready to modernize</h2>
+                        <p class="about-text">Too many small and medium businesses still rely on paper records, manual
+                            calculations, and outdated systems that slow down growth. NkwaBiz bridges the gap between
+                            traditional business operations and modern digital efficiency.</p>
+
+                        <p class="about-text">Whether you're a retail shop tracking inventory on paper, a small
+                            manufacturer managing stock with spreadsheets, or a growing business drowning in manual
+                            processes - we've built the simplest path to digital transformation.</p>
+
+                        <p class="about-text">Our platform eliminates the complexity of expensive enterprise software
+                            while providing all the essential tools you need to run your business professionally and
+                            efficiently.</p>
+                    </div>
+                </section>
+
+                <!-- CTA Section -->
+                <section class="cta">
+                    <h2>Ready to get started?</h2>
+                    <p>Join businesses using NkwaBiz to streamline their operations.</p>
+                    <a href="#" class="signup-btn" @click="handleSignup">Start your free trial</a>
+                </section>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <p>Built by Mhistack Software Company</p>
+                <p>&copy; 2025 NkwaBiz. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            methods: {
+                handleSignup() {
+                    // Replace with your actual signup logic
+                    console.log('Redirecting to signup...');
+                    // window.location.href = '/signup';
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>
