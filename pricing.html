@@ -397,7 +397,7 @@
                         <li><a href="index.html#about">About</a></li>
                     </ul>
                     <button class="mobile-menu-btn" @click="toggleMobileMenu">☰</button>
-                    <a href="#" class="header-btn">Get Started</a>
+                    <a href="auth.html" class="header-btn">Get Started</a>
                 </nav>
             </div>
             <div class="mobile-menu" :class="{ active: mobileMenuOpen }">
@@ -405,7 +405,7 @@
                     <li><a href="index.html#features">Features</a></li>
                     <li><a href="pricing.html" @click="closeMobileMenu">Pricing</a></li>
                     <li><a href="index.html#about">About</a></li>
-                    <li><a href="#" @click="handleSignup">Get Started</a></li>
+                    <li><a href="auth.html" @click="handleSignup">Get Started</a></li>
                 </ul>
             </div>
         </header>
@@ -437,7 +437,7 @@
                                 <li>Basic inventory tracking</li>
                             </ul>
 
-                            <button class="pricing-btn" @click="handleSignup">Start free</button>
+                            <button class="pricing-btn" onclick="window.location.href='auth.html'">Start free</button>
                         </div>
 
                         <div class="pricing-card featured">
@@ -455,7 +455,8 @@
                                 <li>Priority support</li>
                             </ul>
 
-                            <button class="pricing-btn" @click="handleSignup">Upgrade to Premium</button>
+                            <button class="pricing-btn" onclick="window.location.href='auth.html'">Upgrade to
+                                Premium</button>
                         </div>
                     </div>
                 </section>
@@ -510,7 +511,7 @@
                 <section class="cta">
                     <h2>Ready to digitize your business?</h2>
                     <p>Join businesses already using NkwaBiz to streamline their operations.</p>
-                    <a href="#" class="signup-btn" @click="handleSignup">Get started free</a>
+                    <a href="auth.html" class="signup-btn" @click="handleSignup">Get started free</a>
                 </section>
             </div>
         </div>
