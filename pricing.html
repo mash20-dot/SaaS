@@ -59,6 +59,42 @@
             font-weight: 500;
         }
 
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .mobile-menu {
+            display: none;
+            background: white;
+            border-top: 1px solid #e5e5e5;
+            padding: 20px;
+        }
+
+        .mobile-menu.active {
+            display: block;
+        }
+
+        .mobile-menu ul {
+            list-style: none;
+        }
+
+        .mobile-menu ul li {
+            margin-bottom: 15px;
+        }
+
+        .mobile-menu ul li a {
+            text-decoration: none;
+            color: #666;
+            font-size: 16px;
+            font-weight: 500;
+            display: block;
+        }
+
         .header-btn {
             background: transparent;
             border: 1px solid #ddd;
@@ -313,6 +349,14 @@
                 display: none;
             }
 
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .header-btn {
+                display: none;
+            }
+
             .pricing-hero h1 {
                 font-size: 28px;
             }
@@ -352,8 +396,17 @@
                         <li><a href="pricing.html">Pricing</a></li>
                         <li><a href="index.html#about">About</a></li>
                     </ul>
+                    <button class="mobile-menu-btn" @click="toggleMobileMenu">☰</button>
                     <a href="#" class="header-btn">Get Started</a>
                 </nav>
+            </div>
+            <div class="mobile-menu" :class="{ active: mobileMenuOpen }">
+                <ul>
+                    <li><a href="index.html#features">Features</a></li>
+                    <li><a href="pricing.html" @click="closeMobileMenu">Pricing</a></li>
+                    <li><a href="index.html#about">About</a></li>
+                    <li><a href="#" @click="handleSignup">Get Started</a></li>
+                </ul>
             </div>
         </header>
 
@@ -475,11 +528,22 @@
         const { createApp } = Vue;
 
         createApp({
+            data() {
+                return {
+                    mobileMenuOpen: false
+                }
+            },
             methods: {
                 handleSignup() {
                     // Replace with your actual signup logic
                     console.log('Redirecting to signup...');
                     // window.location.href = '/signup';
+                },
+                toggleMobileMenu() {
+                    this.mobileMenuOpen = !this.mobileMenuOpen;
+                },
+                closeMobileMenu() {
+                    this.mobileMenuOpen = false;
                 }
             }
         }).mount('#app');
