@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - NkwaBiz</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+            color: #333;
+            background: #fafafa;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 20px 0;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            color: #000;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .header-btn {
+            background: transparent;
+            border: 1px solid #ddd;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main {
+            background: white;
+            margin: 40px auto;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Hero Section */
+        .pricing-hero {
+            padding: 60px 40px 40px 40px;
+            text-align: center;
+        }
+
+        .pricing-hero h1 {
+            font-size: 38px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 15px;
+        }
+
+        .pricing-hero p {
+            font-size: 16px;
+            color: #666;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Pricing Section */
+        .pricing-section {
+            padding: 40px 40px 60px 40px;
+        }
+
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            max-width: 750px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: #f8f9fa;
+            padding: 40px 30px;
+            border-radius: 12px;
+            border: 2px solid #e5e5e5;
+            text-align: left;
+            transition: all 0.3s;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .pricing-card.featured {
+            background: #000;
+            color: white;
+            border-color: #9ACD32;
+        }
+
+        .pricing-card h3 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .pricing-card.featured h3 {
+            color: white;
+        }
+
+        .price {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #000;
+        }
+
+        .pricing-card.featured .price {
+            color: #9ACD32;
+        }
+
+        .price-period {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .pricing-card.featured .price-period {
+            color: #ccc;
+        }
+
+        .features-list {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .features-list li {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+            padding-left: 25px;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .pricing-card.featured .features-list li {
+            color: #ccc;
+        }
+
+        .features-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #9ACD32;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .pricing-btn {
+            width: 100%;
+            background: #000;
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pricing-card.featured .pricing-btn {
+            background: #9ACD32;
+            color: #000;
+        }
+
+        .pricing-btn:hover {
+            opacity: 0.85;
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            background: #f8f9fa;
+            padding: 50px 40px;
+        }
+
+        .faq-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .faq-header h2 {
+            font-size: 28px;
+            color: #000;
+            margin-bottom: 10px;
+        }
+
+        .faq-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .faq-grid {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .faq-item h3 {
+            font-size: 16px;
+            color: #000;
+            margin-bottom: 10px;
+        }
+
+        .faq-item p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* CTA Section */
+        .cta {
+            background: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 28px;
+            color: #000;
+            margin-bottom: 15px;
+        }
+
+        .cta p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 15px;
+        }
+
+        .signup-btn {
+            background: #000;
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+
+        .signup-btn:hover {
+            background: #333;
+        }
+
+        /* Footer */
+        .footer {
+            background: #000;
+            color: #999;
+            padding: 30px 0;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .footer p {
+            margin-bottom: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .pricing-hero h1 {
+                font-size: 28px;
+            }
+
+            .pricing-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-section {
+                padding: 30px 30px 50px 30px;
+            }
+
+            .pricing-hero {
+                padding: 50px 30px 30px 30px;
+            }
+
+            .faq-section {
+                padding: 40px 30px;
+            }
+
+            .cta {
+                padding: 50px 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <nav class="nav">
+                    <a href="index.html" class="logo">NkwaBiz</a>
+                    <ul class="nav-menu">
+                        <li><a href="index.html#features">Features</a></li>
+                        <li><a href="pricing.html">Pricing</a></li>
+                        <li><a href="index.html#about">About</a></li>
+                    </ul>
+                    <a href="#" class="header-btn">Get Started</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="container">
+            <div class="main">
+                <!-- Pricing Hero -->
+                <section class="pricing-hero">
+                    <h1>Simple, transparent pricing</h1>
+                    <p>Start free and upgrade when you need more features. No credit card required to start.</p>
+                </section>
+
+                <!-- Pricing Cards -->
+                <section class="pricing-section">
+                    <div class="pricing-cards">
+                        <div class="pricing-card">
+                            <h3>Free</h3>
+                            <div class="price">GH₵ 0</div>
+                            <p class="price-period">Forever free</p>
+
+                            <ul class="features-list">
+                                <li>Add unlimited products</li>
+                                <li>View all products</li>
+                                <li>Edit product details</li>
+                                <li>Filter and search products</li>
+                                <li>Enter bought products</li>
+                                <li>Automatic stock updates</li>
+                                <li>Basic inventory tracking</li>
+                            </ul>
+
+                            <button class="pricing-btn" @click="handleSignup">Start free</button>
+                        </div>
+
+                        <div class="pricing-card featured">
+                            <h3>Premium</h3>
+                            <div class="price">GH₵ 50</div>
+                            <p class="price-period">Per month</p>
+
+                            <ul class="features-list">
+                                <li>Everything in Free</li>
+                                <li>Archive products</li>
+                                <li>Low stock alerts</li>
+                                <li>Complete sales history</li>
+                                <li>Export data to Excel</li>
+                                <li>Advanced analytics</li>
+                                <li>Priority support</li>
+                            </ul>
+
+                            <button class="pricing-btn" @click="handleSignup">Upgrade to Premium</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FAQ Section -->
+                <section class="faq-section">
+                    <div class="faq-header">
+                        <h2>Frequently asked questions</h2>
+                        <p>Everything you need to know about our pricing</p>
+                    </div>
+
+                    <div class="faq-grid">
+                        <div class="faq-item">
+                            <h3>Is the free plan really free forever?</h3>
+                            <p>Yes, the free plan is completely free with no time limits. You can use it as long as you
+                                want with all the core features included.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h3>Can I upgrade or downgrade anytime?</h3>
+                            <p>Absolutely. You can upgrade to Premium anytime to unlock advanced features, or downgrade
+                                back to Free if you no longer need premium features.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h3>What payment methods do you accept?</h3>
+                            <p>We accept mobile money and bank transfers for premium subscriptions. More payment options
+                                coming soon.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h3>Do I need a credit card to start?</h3>
+                            <p>No credit card required. You can start using NkwaBiz immediately with the free plan. Only
+                                upgrade to Premium when you're ready.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h3>What happens if I cancel my Premium subscription?</h3>
+                            <p>You'll automatically move back to the free plan. Your data remains safe and you keep
+                                access to all free features.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h3>Is there a limit to how many products I can add?</h3>
+                            <p>No limits. Both Free and Premium plans allow unlimited products, so you can grow your
+                                business without worrying about restrictions.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- CTA Section -->
+                <section class="cta">
+                    <h2>Ready to digitize your business?</h2>
+                    <p>Join businesses already using NkwaBiz to streamline their operations.</p>
+                    <a href="#" class="signup-btn" @click="handleSignup">Get started free</a>
+                </section>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <p>Built by Mhistack Software Company</p>
+                <p>&copy; 2025 NkwaBiz. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            methods: {
+                handleSignup() {
+                    // Replace with your actual signup logic
+                    console.log('Redirecting to signup...');
+                    // window.location.href = '/signup';
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>
