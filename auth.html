@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started - NkwaBiz</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+            color: #333;
+            background: #fafafa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 20px 0;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            color: #000;
+            text-decoration: none;
+        }
+
+        .back-link {
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .auth-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+        }
+
+        /* Form */
+        .auth-form {
+            padding: 40px;
+        }
+
+        .form-header {
+            margin-bottom: 30px;
+        }
+
+        .form-header h2 {
+            font-size: 24px;
+            color: #000;
+            margin-bottom: 8px;
+        }
+
+        .form-header p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #fafafa;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #9ACD32;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(154, 205, 50, 0.1);
+        }
+
+        .form-input.error {
+            border-color: #dc3545;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .password-requirements {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: #000;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: #333;
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .switch-auth {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .switch-auth a {
+            color: #000;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .switch-auth a:hover {
+            color: #9ACD32;
+        }
+
+        .free-badge {
+            background: #9ACD32;
+            color: #000;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        /* Footer */
+        .footer {
+            background: #000;
+            color: #999;
+            padding: 20px 0;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        /* Fade transition */
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.3s;
+        }
+
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .auth-form {
+                padding: 30px 25px;
+            }
+
+            .form-header h2 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <nav class="nav">
+                    <a href="index.html" class="logo">NkwaBiz</a>
+                    <a href="index.html" class="back-link">← Back to home</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="auth-container">
+                <!-- Signup Form -->
+                <transition name="fade">
+                    <div v-if="showSignup" class="auth-form" key="signup">
+                        <div class="form-header">
+                            <div class="free-badge">FREE FOREVER</div>
+                            <h2>Create your account</h2>
+                            <p>Start managing your business digitally today</p>
+                        </div>
+
+                        <form @submit.prevent="handleSignup">
+                            <div class="form-group">
+                                <label for="signup-name" class="form-label">Full Name</label>
+                                <input type="text" id="signup-name" class="form-input" v-model="signupForm.name"
+                                    required placeholder="John Doe">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="signup-email" class="form-label">Email Address</label>
+                                <input type="email" id="signup-email" class="form-input" v-model="signupForm.email"
+                                    required placeholder="john@example.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="signup-phone" class="form-label">Phone Number</label>
+                                <input type="tel" id="signup-phone" class="form-input" v-model="signupForm.phone"
+                                    required placeholder="+233 XX XXX XXXX">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="signup-business" class="form-label">Business Name</label>
+                                <input type="text" id="signup-business" class="form-input"
+                                    v-model="signupForm.businessName" required placeholder="Your Business Name">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="signup-password" class="form-label">Password</label>
+                                <input type="password" id="signup-password" class="form-input"
+                                    v-model="signupForm.password" required placeholder="Create a strong password">
+                                <p class="password-requirements">At least 8 characters</p>
+                            </div>
+
+                            <button type="submit" class="submit-btn" :disabled="submitting">
+                                <span v-if="submitting">Creating account...</span>
+                                <span v-else>Create free account</span>
+                            </button>
+                        </form>
+
+                        <div class="switch-auth">
+                            Already have an account? <a @click="showSignup = false">Log in</a>
+                        </div>
+                    </div>
+                </transition>
+
+                <!-- Login Form -->
+                <transition name="fade">
+                    <div v-if="!showSignup" class="auth-form" key="login">
+                        <div class="form-header">
+                            <h2>Welcome back</h2>
+                            <p>Log in to your NkwaBiz account</p>
+                        </div>
+
+                        <form @submit.prevent="handleLogin">
+                            <div class="form-group">
+                                <label for="login-email" class="form-label">Email Address</label>
+                                <input type="email" id="login-email" class="form-input" v-model="loginForm.email"
+                                    required placeholder="john@example.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="login-password" class="form-label">Password</label>
+                                <input type="password" id="login-password" class="form-input"
+                                    v-model="loginForm.password" required placeholder="Enter your password">
+                            </div>
+
+                            <button type="submit" class="submit-btn" :disabled="submitting">
+                                <span v-if="submitting">Logging in...</span>
+                                <span v-else>Log in</span>
+                            </button>
+                        </form>
+
+                        <div class="switch-auth">
+                            Don't have an account? <a @click="showSignup = true">Sign up free</a>
+                        </div>
+                    </div>
+                </transition>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <p>&copy; 2025 NkwaBiz. Built by Mhistack Software Company</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    showSignup: true,
+                    submitting: false,
+                    signupForm: {
+                        name: '',
+                        email: '',
+                        phone: '',
+                        businessName: '',
+                        password: ''
+                    },
+                    loginForm: {
+                        email: '',
+                        password: ''
+                    }
+                }
+            },
+            methods: {
+                async handleSignup() {
+                    this.submitting = true;
+
+                    // TODO: Replace with your actual backend API call
+                    console.log('Signup data:', this.signupForm);
+
+                    // Simulate API call
+                    setTimeout(() => {
+                        alert('Account created successfully! Redirecting to dashboard...');
+                        // window.location.href = '/dashboard';
+                        this.submitting = false;
+                    }, 1500);
+                },
+
+                async handleLogin() {
+                    this.submitting = true;
+
+                    // TODO: Replace with your actual backend API call
+                    console.log('Login data:', this.loginForm);
+
+                    // Simulate API call
+                    setTimeout(() => {
+                        alert('Login successful! Redirecting to dashboard...');
+                        // window.location.href = '/dashboard';
+                        this.submitting = false;
+                    }, 1500);
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>
