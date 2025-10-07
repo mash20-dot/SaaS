@@ -392,15 +392,18 @@
                     </div>
                 </div>
 
-                <div v-if="loading" style="padding:20px; text-align:center">Loading data...</div>
+                <div v-if="loading" style="padding:20px; text-align:center">
+                    Loading data...
+                    <div class="muted" style="margin-top:8px">{{ loadingTime }}s elapsed</div>
+                </div>
 
                 <div v-if="errorMessage" :class="['status','error']" style="margin-top:16px">{{ errorMessage }}</div>
 
                 <div v-if="!loading && products.length === 0" style="padding:20px; text-align:center" class="muted">No
                     product analytics available yet.</div>
 
-                <div v-if="products.length > 0" class="table-responsive">
-                    <table class="responsive-table" style="width:100%; min-width:720px; border-collapse:collapse;">
+                <div v-if="products.length > 0" class="table-wrapper">
+                    <table style="width:100%; min-width:720px; border-collapse:collapse;">
                         <thead>
                             <tr>
                                 <th>Product Name</th>
@@ -510,7 +513,9 @@
                         openMenuId: null,
                         editMessage: '',
                         editMessageType: '',
-                        editMessageTimer: null
+                        editMessageTimer: null,
+                        loadingTime: 0,
+                        loadingInterval: null
                     }
                 },
                 computed: {
@@ -563,7 +568,6 @@
                             document.removeEventListener('click', this.handleDocClick);
                         } else {
                             this.openMenuId = pid;
-                            // close on outside click
                             setTimeout(() => document.addEventListener('click', this.handleDocClick));
                         }
                     },
@@ -579,7 +583,6 @@
                         document.removeEventListener('click', this.handleDocClick);
                     },
                     startEdit(p, idx) {
-                        // clear any prior messages/timers
                         if (this.editMessageTimer) {
                             clearTimeout(this.editMessageTimer);
                             this.editMessageTimer = null;
@@ -589,7 +592,6 @@
 
                         this.editRowId = this.getProductId(p);
                         this.editIndex = (typeof idx === 'number') ? idx : this.products.findIndex(x => this.getProductId(x) === this.getProductId(p));
-                        // shallow copy for editing
                         this.editProduct = {
                             product_name: p.product_name || '',
                             selling_price: p.selling_price || 0,
@@ -611,7 +613,6 @@
                     },
                     async saveEdit(productId) {
                         if (!this.editProduct) return;
-                        // ensure we have the correct id: prefer explicit arg, otherwise use the active editRowId
                         const idToUse = productId || this.editRowId;
                         if (!idToUse) {
                             this.editMessage = 'No product selected for update.';
@@ -639,13 +640,10 @@
                                 this.editMessageType = 'error';
                                 return;
                             }
-                            // update local products array
                             const idx = (this.editIndex > -1) ? this.editIndex : this.products.findIndex(x => x.id === productId);
                             if (idx > -1) {
-                                // replace the exact index to avoid duplicates
-                                this.$set ? this.$set(this.products, idx, Object.assign({}, this.products[idx], data.product || {})) : this.products.splice(idx, 1, Object.assign({}, this.products[idx], data.product || {}));
+                                this.products.splice(idx, 1, Object.assign({}, this.products[idx], data.product || {}));
                             }
-                            // show backend success message inline and auto-close the edit row
                             this.editMessage = data.message || 'Product updated successfully.';
                             this.editMessageType = 'success';
                             if (this.editMessageTimer) clearTimeout(this.editMessageTimer);
@@ -678,8 +676,19 @@
                     async loadAnalytics() {
                         this.loading = true;
                         this.errorMessage = '';
+                        this.loadingTime = 0;
+
+                        // Start loading timer
+                        this.loadingInterval = setInterval(() => {
+                            this.loadingTime++;
+                        }, 1000);
+
                         try {
-                            const resp = await apiFetch('https://saas-tool-mf02.onrender.com/dashboard/board', { method: 'GET', timeoutMs: 15000 });
+                            const resp = await apiFetch('https://saas-tool-mf02.onrender.com/dashboard/board', {
+                                method: 'GET',
+                                timeoutMs: 45000
+                            });
+
                             if (!resp.ok) {
                                 let body = '';
                                 try { body = await resp.text(); } catch (e) { }
@@ -687,25 +696,38 @@
                                 console.warn('analytics load failed', resp.status, body);
                                 return;
                             }
+
                             const data = await resp.json().catch(() => null);
+                            console.log('Raw API response:', data);
+
+                            // CRITICAL FIX: Filter out null/undefined items
+                            let productList = [];
+
                             if (Array.isArray(data)) {
-                                this.products = data;
+                                productList = data.filter(item => item !== null && item !== undefined);
                             } else if (data && data.product_name) {
-                                this.products = [data];
+                                productList = [data];
                             } else if (data && data.products && Array.isArray(data.products)) {
-                                this.products = data.products;
-                            } else {
-                                this.products = [];
+                                productList = data.products.filter(item => item !== null && item !== undefined);
                             }
+
+                            // Additional safety check: ensure each product has required fields
+                            this.products = productList.filter(p => {
+                                return p && typeof p === 'object' && p.product_name;
+                            });
+
+                            console.log('Filtered products:', this.products);
+
                         } catch (err) {
                             console.error('loadAnalytics error', err);
                             if (err && err.timedout) {
-                                this.errorMessage = 'Request timed out while loading analytics. Please check your network and try again.';
+                                this.errorMessage = 'Request timed out. The server may be starting up (this can take 30-60 seconds on first load).';
                             } else {
                                 this.errorMessage = 'Network error while loading analytics.';
                             }
                         } finally {
                             this.loading = false;
+                            clearInterval(this.loadingInterval);
                         }
                     },
                     async postProduct() {
@@ -846,4 +868,4 @@
     </script>
 </body>
 
-</
+</html>
