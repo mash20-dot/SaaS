@@ -355,8 +355,8 @@
                 <div v-if="!loading && products.length === 0" style="padding:20px; text-align:center" class="muted">No
                     product analytics available yet.</div>
 
-                <div v-if="products.length > 0" class="table-wrapper">
-                    <table>
+                <div v-if="products.length > 0" class="table-responsive">
+                    <table class="responsive-table" style="width:100%; min-width:720px; border-collapse:collapse;">
                         <thead>
                             <tr>
                                 <th>Product Name</th>
