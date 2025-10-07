@@ -46,10 +46,11 @@
             background: #000;
             color: #fff;
             border: none;
-            padding: 10px 14px;
+            padding: 10px 16px;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: 600
+            font-weight: 600;
+            font-size: 14px;
         }
 
         .btn:disabled {
@@ -58,24 +59,28 @@
         }
 
         .muted {
-            color: #777
+            color: #777;
+            font-size: 14px;
         }
 
         .topbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 18px
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
         .topbar .signup-btn {
             background: transparent;
             color: #000;
             border: 1px solid #000;
-            padding: 8px 10px;
+            padding: 8px 12px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: 600;
+            font-size: 14px;
         }
 
         .topbar .signup-btn:hover {
@@ -85,52 +90,23 @@
 
         .topbar .top-actions {
             display: flex;
-            gap: 8px;
+            gap: 12px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .actions-row {
             display: flex;
-            gap: 10px;
-            align-items: center;
+            gap: 16px;
+            align-items: flex-start;
             flex-wrap: wrap;
-            margin-top: 12px;
+            margin-top: 16px;
         }
 
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            border-radius: 8px;
-            background: #fff;
-        }
-
-        table.responsive-table th,
-        table.responsive-table td {
-            white-space: nowrap;
-            padding: 8px;
-        }
-
-        @media (max-width:600px) {
-            .container {
-                padding: 12px;
-                margin: 20px auto;
-            }
-
-            .actions-row {
-                gap: 8px;
-            }
-
-            .btn {
-                padding: 8px 10px;
-                font-size: 14px
-            }
-
-            table.responsive-table th,
-            table.responsive-table td {
-                padding: 6px;
-                font-size: 13px
-            }
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         .form-input {
@@ -168,6 +144,116 @@
         input[type="file"] {
             padding: 8px 0;
         }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background: #f2f2f2;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 8px;
+            border-bottom: 2px solid #ddd;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+                margin: 20px auto;
+            }
+
+            .actions-row {
+                gap: 12px;
+            }
+
+            .button-group {
+                gap: 8px;
+                width: 100%;
+            }
+
+            .button-group .btn {
+                flex: 1;
+                min-width: 140px;
+            }
+
+            .topbar {
+                gap: 10px;
+            }
+
+            .topbar .top-actions {
+                gap: 8px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            h2 {
+                font-size: 18px;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            th,
+            td {
+                padding: 8px 6px;
+                font-size: 13px;
+                white-space: nowrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 12px;
+                margin: 12px auto;
+            }
+
+            .btn {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+
+            .button-group .btn {
+                min-width: 120px;
+            }
+
+            h1 {
+                font-size: 18px;
+            }
+
+            h2 {
+                font-size: 16px;
+            }
+
+            th,
+            td {
+                padding: 6px 4px;
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 
@@ -176,27 +262,32 @@
         <div class="container">
             <div class="topbar">
                 <div><strong>NkwaBiz</strong></div>
-                <div style="display:flex; gap:12px; align-items:center;">
+                <div class="top-actions">
                     <div class="muted">{{ businessDisplay }}</div>
                     <a v-if="!business" href="auth.html" class="signup-btn">Sign up</a>
                     <button v-if="business" @click="signout" class="btn">Sign out</button>
                 </div>
             </div>
+
             <div class="card">
                 <h1>{{ welcomeTitle }}</h1>
                 <p>{{ subtitle }}</p>
             </div>
+
             <div class="card" style="margin-top:16px">
                 <h2>Your products</h2>
+
                 <div class="actions-row">
-                    <div class="top-actions">
+                    <div class="button-group">
                         <button class="btn" @click="togglePostForm">{{ postFormButtonText }}</button>
                         <button class="btn" @click="toggleBulk">{{ bulkButtonText }}</button>
                     </div>
-                    <div class="muted">Manage your product inventory and analytics here.</div>
+                    <div class="muted" style="flex: 1; min-width: 200px;">Manage your product inventory and analytics
+                        here.</div>
                 </div>
-                <div v-if="showPostForm" style="margin-top:12px; padding:8px 0">
-                    <form @submit.prevent="postProduct" style="display:grid; gap:8px; max-width:520px">
+
+                <div v-if="showPostForm" style="margin-top:16px; padding:12px 0">
+                    <form @submit.prevent="postProduct" style="display:grid; gap:10px; max-width:520px">
                         <input v-model="newProduct.product_name" placeholder="Product name" required class="form-input">
                         <input v-model.number="newProduct.selling_price" placeholder="Selling price" required
                             class="form-input" type="number" step="0.01">
@@ -205,29 +296,27 @@
                         <input v-model="newProduct.expiration_date" placeholder="Expiration date (YYYY-MM-DD)"
                             class="form-input" type="date">
                         <input v-model="newProduct.supplier_info" placeholder="Supplier info" class="form-input">
-                        <div style="display:flex; gap:8px; margin-top:6px; flex-wrap:wrap; align-items:center">
+                        <div style="display:flex; gap:10px; margin-top:6px; flex-wrap:wrap; align-items:center">
                             <button class="btn" type="submit" :disabled="posting">{{ submitButtonText }}</button>
                             <div v-if="postMessage" :class="['status', postMessageType]">{{ postMessage }}</div>
                         </div>
                     </form>
                 </div>
-                <div style="margin-top:12px">
-                    <button class="btn" @click="toggleBulk">{{ bulkButtonText }}</button>
-                </div>
-                <div v-if="showBulk" style="margin-top:12px; max-width:720px">
+
+                <div v-if="showBulk" style="margin-top:16px; max-width:720px">
                     <p class="muted">Upload CSV with header row
                         (product_name,selling_price,initial_stock,expiration_date,supplier_info) or paste lines.</p>
-                    <input type="file" accept=".csv,text/csv" @change="onFileChange">
+                    <input type="file" accept=".csv,text/csv" @change="onFileChange" style="margin-top:8px">
                     <textarea v-model="bulkText" rows="6"
                         placeholder="product_name,selling_price,initial_stock,expiration_date,supplier_info&#10;Product A,10.50,100,2025-12-31,Supplier X"
-                        style="width:100%; margin-top:8px; padding:8px; box-sizing:border-box"></textarea>
-                    <div style="display:flex; gap:8px; margin-top:8px; align-items:center; flex-wrap:wrap">
+                        style="width:100%; margin-top:8px; padding:10px; box-sizing:border-box"></textarea>
+                    <div style="display:flex; gap:10px; margin-top:10px; align-items:center; flex-wrap:wrap">
                         <button class="btn" @click="startBulk" :disabled="bulkPosting">{{ bulkStartButtonText
                             }}</button>
                         <div class="muted">{{ bulkStatus }}</div>
                     </div>
                     <div v-if="bulkResults.length" style="margin-top:12px">
-                        <div v-for="(r, i) in bulkResults" :key="i" style="padding:6px 0; border-bottom:1px solid #eee">
+                        <div v-for="(r, i) in bulkResults" :key="i" style="padding:8px 0; border-bottom:1px solid #eee">
                             <div><strong>{{ r.product_name || '(no name)' }}</strong> — <span
                                     :style="{ color: r.ok ? '#155724' : '#721c24' }">{{ r.ok ? 'OK' : 'ERROR' }}</span>
                             </div>
@@ -235,37 +324,34 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="loading" style="padding:18px">Loading data...</div>
-                <div v-if="errorMessage" :class="['status','error']" style="margin-top:12px">{{ errorMessage }}</div>
-                <div v-if="!loading && products.length === 0" style="padding:18px" class="muted">No product analytics
-                    available yet.</div>
-                <div v-if="products.length > 0" style="margin-top:12px">
-                    <table
-                        style="width:100%; border-collapse:collapse; background:#fff; border-radius:8px; overflow:hidden;">
-                        <thead style="background:#f2f2f2;">
+
+                <div v-if="loading" style="padding:20px; text-align:center">Loading data...</div>
+
+                <div v-if="errorMessage" :class="['status','error']" style="margin-top:16px">{{ errorMessage }}</div>
+
+                <div v-if="!loading && products.length === 0" style="padding:20px; text-align:center" class="muted">No
+                    product analytics available yet.</div>
+
+                <div v-if="products.length > 0" style="margin-top:16px; overflow-x:auto">
+                    <table>
+                        <thead>
                             <tr>
-                                <th style="text-align:left; padding:8px; border-bottom:1px solid #eee;">Product Name
-                                </th>
-                                <th style="text-align:left; padding:8px; border-bottom:1px solid #eee;">Selling Price
-                                </th>
-                                <th style="text-align:left; padding:8px; border-bottom:1px solid #eee;">Initial Stock
-                                </th>
-                                <th style="text-align:left; padding:8px; border-bottom:1px solid #eee;">Remaining Stock
-                                </th>
-                                <th style="text-align:left; padding:8px; border-bottom:1px solid #eee;">Expiration Date
-                                </th>
-                                <th style="text-align:left; padding:8px; border-bottom:1px solid #eee;">Supplier Info
-                                </th>
+                                <th>Product Name</th>
+                                <th>Selling Price</th>
+                                <th>Initial Stock</th>
+                                <th>Remaining Stock</th>
+                                <th>Expiration Date</th>
+                                <th>Supplier Info</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(p, idx) in products" :key="idx" style="border-bottom:1px solid #eee;">
-                                <td style="padding:8px; font-weight:700;">{{ p.product_name || 'Unnamed product' }}</td>
-                                <td style="padding:8px;">¢{{ formatNumber(p.selling_price) }}</td>
-                                <td style="padding:8px;">{{ p.initial_stock }}</td>
-                                <td style="padding:8px;">{{ p.remaining_stock }}</td>
-                                <td style="padding:8px;">{{ formatDate(p.expiration_date) }}</td>
-                                <td style="padding:8px;">{{ p.supplier_info || '-' }}</td>
+                            <tr v-for="(p, idx) in products" :key="idx">
+                                <td style="font-weight:600">{{ p.product_name || 'Unnamed product' }}</td>
+                                <td>¢{{ formatNumber(p.selling_price) }}</td>
+                                <td>{{ p.initial_stock }}</td>
+                                <td>{{ p.remaining_stock }}</td>
+                                <td>{{ formatDate(p.expiration_date) }}</td>
+                                <td>{{ p.supplier_info || '-' }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -273,6 +359,7 @@
             </div>
         </div>
     </div>
+
     <script>
         try {
             const { createApp } = Vue;
@@ -335,9 +422,11 @@
                 methods: {
                     togglePostForm() {
                         this.showPostForm = !this.showPostForm;
+                        if (this.showPostForm) this.showBulk = false;
                     },
                     toggleBulk() {
                         this.showBulk = !this.showBulk;
+                        if (this.showBulk) this.showPostForm = false;
                     },
                     formatNumber(v) {
                         if (v == null || v === '') return '-';
@@ -348,7 +437,6 @@
                         const dt = new Date(d);
                         if (isNaN(dt)) return d;
                         return dt.toLocaleDateString();
-
                     },
                     async loadAnalytics() {
                         this.loading = true;
