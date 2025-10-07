@@ -413,22 +413,22 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(p, idx) in products" :key="p.id || idx">
+                            <tr v-for="(p, idx) in products" :key="getProductId(p) || idx">
                                 <td>
-                                    <template v-if="editRowId === p.id">
+                                    <template v-if="editRowId === getProductId(p)">
                                         <input class="form-input" v-model="editProduct.product_name">
                                     </template>
                                     <template v-else>{{ p.product_name || 'Unnamed product' }}</template>
                                 </td>
                                 <td>
-                                    <template v-if="editRowId === p.id">
+                                    <template v-if="editRowId === getProductId(p)">
                                         <input class="form-input" v-model.number="editProduct.selling_price"
                                             type="number" step="0.01">
                                     </template>
                                     <template v-else>¢{{ formatNumber(p.selling_price) }}</template>
                                 </td>
                                 <td>
-                                    <template v-if="editRowId === p.id">
+                                    <template v-if="editRowId === getProductId(p)">
                                         <input class="form-input" v-model.number="editProduct.initial_stock"
                                             type="number">
                                     </template>
@@ -436,22 +436,22 @@
                                 </td>
                                 <td>{{ p.remaining_stock }}</td>
                                 <td>
-                                    <template v-if="editRowId === p.id">
+                                    <template v-if="editRowId === getProductId(p)">
                                         <input class="form-input" v-model="editProduct.expiration_date" type="date">
                                     </template>
                                     <template v-else>{{ formatDate(p.expiration_date) }}</template>
                                 </td>
                                 <td>
-                                    <template v-if="editRowId === p.id">
+                                    <template v-if="editRowId === getProductId(p)">
                                         <input class="form-input" v-model="editProduct.supplier_info">
                                     </template>
                                     <template v-else>{{ p.supplier_info || '-' }}</template>
                                 </td>
                                 <td style="text-align:center">
-                                    <div v-if="editRowId === p.id"
+                                    <div v-if="editRowId === getProductId(p)"
                                         style="display:flex; gap:8px; justify-content:center; flex-direction:column; align-items:center">
                                         <div style="display:flex; gap:8px;">
-                                            <button class="btn" @click="saveEdit(p.id)"
+                                            <button class="btn" @click="saveEdit(getProductId(p))"
                                                 :disabled="editing">Save</button>
                                             <button class="btn" style="background:#fff;color:#000;border:1px solid #ddd"
                                                 @click="cancelEdit">Cancel</button>
@@ -461,7 +461,7 @@
                                     </div>
                                     <div v-else style="position:relative; display:inline-block">
                                         <button class="dot-btn" @click.stop="toggleMenu(p)">&#8942;</button>
-                                        <div v-if="openMenuId === p.id" class="menu-dropdown">
+                                        <div v-if="openMenuId === getProductId(p)" class="menu-dropdown">
                                             <button class="menu-item" @click.stop="startEditFromMenu(p, idx)">Edit
                                                 data</button>
                                         </div>
@@ -543,6 +543,11 @@
                     }
                 },
                 methods: {
+                    getProductId(p) {
+                        if (!p) return null;
+                        return p.id || p.product_id || p.productId || null;
+                    },
+
                     togglePostForm() {
                         this.showPostForm = !this.showPostForm;
                         if (this.showPostForm) this.showBulk = false;
@@ -552,11 +557,12 @@
                         if (this.showBulk) this.showPostForm = false;
                     },
                     toggleMenu(p) {
-                        if (this.openMenuId === p.id) {
+                        const pid = this.getProductId(p);
+                        if (this.openMenuId === pid) {
                             this.openMenuId = null;
                             document.removeEventListener('click', this.handleDocClick);
                         } else {
-                            this.openMenuId = p.id;
+                            this.openMenuId = pid;
                             // close on outside click
                             setTimeout(() => document.addEventListener('click', this.handleDocClick));
                         }
@@ -581,8 +587,8 @@
                         this.editMessage = '';
                         this.editMessageType = '';
 
-                        this.editRowId = p.id;
-                        this.editIndex = (typeof idx === 'number') ? idx : this.products.findIndex(x => x.id === p.id);
+                        this.editRowId = this.getProductId(p);
+                        this.editIndex = (typeof idx === 'number') ? idx : this.products.findIndex(x => this.getProductId(x) === this.getProductId(p));
                         // shallow copy for editing
                         this.editProduct = {
                             product_name: p.product_name || '',
