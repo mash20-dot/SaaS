@@ -124,6 +124,16 @@
             height: 18px !important;
         }
 
+        .dot-fallback {
+            display: inline-block;
+            font-size: 18px;
+            line-height: 1;
+            color: currentColor;
+            width: 18px;
+            height: 18px;
+            text-align: center;
+        }
+
         .menu-dropdown {
             position: absolute;
             right: 6px;
@@ -481,12 +491,7 @@
                                             :aria-expanded="openMenuId === getMenuKey(p, idx)"
                                             :aria-controls="`menu-` + getMenuKey(p, idx)"
                                             :title="'Actions for ' + (p.product_name || 'product')">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                                xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                                <circle cx="12" cy="5" r="1.6" fill="currentColor" />
-                                                <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-                                                <circle cx="12" cy="19" r="1.6" fill="currentColor" />
-                                            </svg>
+                                            <span class="dot-fallback" aria-hidden="true">⋮</span>
                                         </button>
                                         <div v-if="openMenuId === getMenuKey(p, idx)" :id="`menu-` + getMenuKey(p, idx)"
                                             class="menu-dropdown">
