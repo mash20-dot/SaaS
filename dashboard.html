@@ -103,7 +103,7 @@
             cursor: pointer;
             padding: 6px;
             margin: 0;
-            color: #333;
+            color: #000 !important;
             border-radius: 6px;
             width: 32px;
             height: 32px;
@@ -116,6 +116,8 @@
             background: #f2f2f2
         }
 
+    .dot-btn svg { display:block; fill: currentColor; width:18px; height:18px; }
+
         .menu-dropdown {
             position: absolute;
             right: 6px;
@@ -125,7 +127,7 @@
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
             border-radius: 6px;
             padding: 6px 6px;
-            z-index: 50;
+            z-index: 9999;
             min-width: 140px;
         }
 
@@ -264,10 +266,6 @@
                 font-size: 20px;
             }
 
-            h2 {
-                font-size: 18px;
-            }
-
             .table-wrapper {
                 margin-left: -16px;
                 margin-right: -16px;
@@ -403,7 +401,10 @@
                     <div class="muted" style="margin-top:8px">{{ loadingTime }}s elapsed</div>
                 </div>
 
-                <div v-if="errorMessage" :class="['status','error']" style="margin-top:16px">{{ errorMessage }}</div>
+                <div v-if="errorMessage" style="margin-top:16px; display:flex; gap:8px; align-items:center">
+                    <div :class="['status','error']">{{ errorMessage }}</div>
+                    <button class="btn" @click="loadAnalytics">Retry</button>
+                </div>
 
                 <div v-if="!loading && products.length === 0" style="padding:20px; text-align:center" class="muted">No
                     product analytics available yet.</div>
@@ -470,19 +471,9 @@
                                         </button>
                                     </div>
                                     <div v-else style="position:relative; display:inline-block">
-                                        <button class="dot-btn" @click.stop="toggleMenu(p)"
-                                            :aria-expanded="openMenuId === getProductId(p)"
-                                            :aria-controls="`menu-` + getProductId(p)"
-                                            :title="'Actions for ' + (p.product_name || 'product')">&#8942;</button>
-                                        <div v-if="openMenuId === getProductId(p)" :id="`menu-` + getProductId(p)"
-                                            class="menu-dropdown">
-                                            <button class="menu-item" @click.stop="startEditFromMenu(p, idx)">
-                                                Edit product
-                                            </button>
-                                        </div>
-                                        <button class="dot-btn" @click.stop="toggleMenu(p)"
-                                            :aria-expanded="openMenuId === getProductId(p)"
-                                            :aria-controls="`menu-` + getProductId(p)"
+                                        <button class="dot-btn" @click.stop="toggleMenu(p, idx)"
+                                            :aria-expanded="openMenuId === getMenuKey(p, idx)"
+                                            :aria-controls="`menu-` + getMenuKey(p, idx)"
                                             :title="'Actions for ' + (p.product_name || 'product')">
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                                                 xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -491,6 +482,12 @@
                                                 <circle cx="12" cy="19" r="1.6" fill="currentColor" />
                                             </svg>
                                         </button>
+                                        <div v-if="openMenuId === getMenuKey(p, idx)" :id="`menu-` + getMenuKey(p, idx)"
+                                            class="menu-dropdown">
+                                            <button class="menu-item" @click.stop="startEditFromMenu(p, idx)">
+                                                Edit product
+                                            </button>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -543,7 +540,16 @@
                         editMessageType: '',
                         editMessageTimer: null,
                         loadingTime: 0,
-                        loadingInterval: null
+                        loadingInterval: null,
+                        // toast
+                        toast: { visible: false, message: '', type: 'success' }
+                    }
+                },
+                watch: {
+                    // show a toast when editMessage changes to success/error
+                    editMessage(newVal, oldVal) {
+                        if (!newVal) return;
+                        this.showToast(newVal, this.editMessageType || 'success');
                     }
                 },
                 computed: {
@@ -563,6 +569,7 @@
                         return this.bulkPosting ? 'Posting...' : 'Start bulk post';
                     }
                 },
+                
                 mounted() {
                     try {
                         this.business = sessionStorage.getItem('nkwabiz_business') || '';
@@ -613,13 +620,24 @@
                         this.showBulk = !this.showBulk;
                         if (this.showBulk) this.showPostForm = false;
                     },
-                    toggleMenu(p) {
-                        const pid = this.getProductId(p);
-                        if (this.openMenuId === pid) {
+                    showToast(message, type = 'success') {
+                        this.toast.message = message;
+                        this.toast.type = type === 'error' ? 'error' : 'success';
+                        this.toast.visible = true;
+                        setTimeout(() => { this.toast.visible = false; }, 2500);
+                    },
+                    hideToast() { this.toast.visible = false; },
+                    getMenuKey(p, idx) {
+                        const id = this.getProductId(p);
+                        return id ? `id-${id}` : `idx-${idx}`;
+                    },
+                    toggleMenu(p, idx) {
+                        const key = this.getMenuKey(p, idx);
+                        if (this.openMenuId === key) {
                             this.openMenuId = null;
                             document.removeEventListener('click', this.handleDocClick);
                         } else {
-                            this.openMenuId = pid;
+                            this.openMenuId = key;
                             setTimeout(() => document.addEventListener('click', this.handleDocClick));
                         }
                     },
@@ -698,7 +716,9 @@
                                 supplier_info: this.editProduct.supplier_info
                             };
 
-                            const resp = await apiFetch(`https://saas-tool-mf02.onrender.com/product_view/product/${idToUse}`, {
+                            const url = `https://saas-tool-mf02.onrender.com/product_view/product/${idToUse}`;
+                            console.debug('Saving product', url, payload);
+                            const resp = await apiFetch(url, {
                                 method: 'PUT',
                                 body: JSON.stringify(payload)
                             });
@@ -723,6 +743,9 @@
 
                             this.editMessage = data.message || 'Product updated successfully.';
                             this.editMessageType = 'success';
+
+                            // also display a toast
+                            this.showToast(this.editMessage, 'success');
 
                             // Auto-close edit mode after 2 seconds
                             if (this.editMessageTimer) clearTimeout(this.editMessageTimer);
