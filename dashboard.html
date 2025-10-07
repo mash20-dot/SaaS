@@ -93,21 +93,50 @@
             gap: 12px;
             align-items: center;
             flex-wrap: wrap;
+        }
 
-            .dot-btn {
-                background: transparent;
-                border: none;
-                font-size: 20px;
-                line-height: 1;
-                cursor: pointer;
-                padding: 6px 8px;
-                color: #333;
-                border-radius: 6px;
-            }
+        .dot-btn {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 6px 8px;
+            color: #333;
+            border-radius: 6px;
+        }
 
-            .dot-btn:hover {
-                background: #f2f2f2
-            }
+        .dot-btn:hover {
+            background: #f2f2f2
+        }
+
+        .menu-dropdown {
+            position: absolute;
+            right: 8px;
+            top: 36px;
+            background: #fff;
+            border: 1px solid #eee;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+            border-radius: 6px;
+            padding: 6px 6px;
+            z-index: 50;
+            min-width: 120px;
+        }
+
+        .menu-item {
+            background: transparent;
+            border: none;
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 8px 6px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .menu-item:hover {
+            background: #f2f2f2
         }
 
         .actions-row {
@@ -425,8 +454,12 @@
                                         <button class="btn" style="background:#fff;color:#000;border:1px solid #ddd"
                                             @click="cancelEdit">Cancel</button>
                                     </div>
-                                    <div v-else>
-                                        <button class="dot-btn" @click="startEdit(p)">&#8942;</button>
+                                    <div v-else style="position:relative; display:inline-block">
+                                        <button class="dot-btn" @click.stop="toggleMenu(p)">&#8942;</button>
+                                        <div v-if="openMenuId === p.id" class="menu-dropdown">
+                                            <button class="menu-item" @click.stop="startEditFromMenu(p)">Edit
+                                                data</button>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -467,7 +500,8 @@
                         bulkResults: [],
                         editRowId: null,
                         editProduct: null,
-                        editing: false
+                        editing: false,
+                        openMenuId: null
                     }
                 },
                 computed: {
@@ -507,6 +541,27 @@
                     toggleBulk() {
                         this.showBulk = !this.showBulk;
                         if (this.showBulk) this.showPostForm = false;
+                    },
+                    toggleMenu(p) {
+                        if (this.openMenuId === p.id) {
+                            this.openMenuId = null;
+                            document.removeEventListener('click', this.handleDocClick);
+                        } else {
+                            this.openMenuId = p.id;
+                            // close on outside click
+                            setTimeout(() => document.addEventListener('click', this.handleDocClick));
+                        }
+                    },
+                    handleDocClick(e) {
+                        if (!e.target.closest || (!e.target.closest('.menu-dropdown') && !e.target.closest('.dot-btn'))) {
+                            this.openMenuId = null;
+                            document.removeEventListener('click', this.handleDocClick);
+                        }
+                    },
+                    startEditFromMenu(p) {
+                        this.openMenuId = null;
+                        this.startEdit(p);
+                        document.removeEventListener('click', this.handleDocClick);
                     },
                     startEdit(p) {
                         this.editRowId = p.id;
