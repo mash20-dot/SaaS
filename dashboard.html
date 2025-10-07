@@ -542,15 +542,39 @@
                         this.business = '';
                         console.warn('Could not access sessionStorage', e);
                     }
-                    if (this.business) {
-                        this.subtitle = `Business: ${this.business}`;
-                        this.loadAnalytics();
-                    }
+                    // Always attempt to load analytics; this allows developers to see products
+                    // even when sessionStorage business is not set.
+                    if (this.business) this.subtitle = `Business: ${this.business}`;
+                    this.loadAnalytics();
                 },
                 methods: {
                     getProductId(p) {
                         if (!p) return null;
                         return p.id || p.product_id || p.productId || null;
+                    },
+
+                    // Normalize product object fields from various API shapes
+                    normalizeProduct(p) {
+                        if (!p || typeof p !== 'object') return null;
+                        const id = this.getProductId(p);
+                        const product_name = p.product_name || p.name || p.productName || p.title || '';
+                        const selling_price = (p.selling_price != null) ? Number(p.selling_price) : (p.sellingPrice != null ? Number(p.sellingPrice) : (p.price != null ? Number(p.price) : null));
+                        const initial_stock = (p.initial_stock != null) ? Number(p.initial_stock) : (p.initialStock != null ? Number(p.initialStock) : (p.stock != null ? Number(p.stock) : null));
+                        const remaining_stock = (p.remaining_stock != null) ? Number(p.remaining_stock) : (p.remainingStock != null ? Number(p.remainingStock) : null);
+                        const expiration_date = p.expiration_date || p.expirationDate || p.expiry || '';
+                        const supplier_info = p.supplier_info || p.supplierInfo || p.supplier || '';
+
+                        return {
+                            id,
+                            product_name,
+                            selling_price,
+                            initial_stock,
+                            remaining_stock,
+                            expiration_date,
+                            supplier_info,
+                            // keep original for any additional fields
+                            _raw: p
+                        };
                     },
 
                     togglePostForm() {
@@ -711,10 +735,8 @@
                                 productList = data.products.filter(item => item !== null && item !== undefined);
                             }
 
-                            // Additional safety check: ensure each product has required fields
-                            this.products = productList.filter(p => {
-                                return p && typeof p === 'object' && p.product_name;
-                            });
+                            // Normalize all products into a consistent shape for the UI
+                            this.products = productList.map(p => this.normalizeProduct(p)).filter(Boolean);
 
                             console.log('Filtered products:', this.products);
 
