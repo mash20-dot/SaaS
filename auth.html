@@ -355,35 +355,108 @@
                     }
                 }
             },
+            mounted() {
+                // If the page was loaded with ?action=login show the login form
+                try {
+                    const params = new URLSearchParams(window.location.search);
+                    if (params.get('action') === 'login') this.showSignup = false;
+                } catch (e) { }
+            },
             methods: {
                 async handleSignup() {
                     this.submitting = true;
 
-                    // TODO: Replace with your actual backend API call
-                    console.log('Signup data:', this.signupForm);
+                    // Build payload using backend's expected names
+                    const payload = {
+                        firstname: this.signupForm.name || '',
+                        lastname: '', // not collected separately in this form
+                        business_name: this.signupForm.businessName || '',
+                        email: this.signupForm.email || '',
+                        phone: this.signupForm.phone || '',
+                        location: '', // optional - not collected in form
+                        password: ''
+                    };
 
-                    // Simulate API call
-                    setTimeout(() => {
-                        // NOTE: backend integration expected — do not persist to localStorage here.
-                        // Keep simulated API response and redirect to pricing as the next step.
-                        alert('Account created successfully! Redirecting to pricing...');
-                        window.location.href = 'pricing.html';
+                    try {
+                        // Hash password client-side using SHA-256 (backend expects hashed_password)
+                        const enc = new TextEncoder();
+                        const passBuffer = enc.encode(this.signupForm.password || '');
+                        const hashBuffer = await crypto.subtle.digest('SHA-256', passBuffer);
+                        const hashArray = Array.from(new Uint8Array(hashBuffer));
+                        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                        payload.password = hashHex;
+
+                        const resp = await fetch('https://saas-tool-mf02.onrender.com/security/signup', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const data = await resp.json().catch(() => ({}));
+
+                        if (resp.ok) {
+                            // Backend indicates success. Switch to login view and show message.
+                            alert(data.message || 'Account created successfully. Please log in.');
+                            // redirect to login view so user can sign in
+                            window.location.href = 'auth.html?action=login';
+                        } else {
+                            // Show backend-provided message or generic error
+                            const msg = data.message || `Signup failed (status ${resp.status})`;
+                            alert(msg);
+                        }
+                    } catch (err) {
+                        console.error('Signup error:', err);
+                        alert('Network or server error. Please try again later.');
+                    } finally {
                         this.submitting = false;
-                    }, 800);
+                    }
                 },
 
                 async handleLogin() {
                     this.submitting = true;
 
-                    // TODO: Replace with your actual backend API call
-                    console.log('Login data:', this.loginForm);
+                    // Build login payload
+                    const payload = {
+                        email: this.loginForm.email || '',
+                        password: ''
+                    };
 
-                    // Simulate API call
-                    setTimeout(() => {
-                        alert('Login successful! Redirecting to dashboard...');
-                        // window.location.href = '/dashboard';
+                    try {
+                        // Hash password same as signup
+                        const enc = new TextEncoder();
+                        const passBuffer = enc.encode(this.loginForm.password || '');
+                        const hashBuffer = await crypto.subtle.digest('SHA-256', passBuffer);
+                        const hashArray = Array.from(new Uint8Array(hashBuffer));
+                        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                        payload.password = hashHex;
+
+                        const resp = await fetch('https://saas-tool-mf02.onrender.com/security/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const data = await resp.json().catch(() => ({}));
+
+                        if (resp.ok) {
+                            // Save token and business_name in sessionStorage for this session
+                            try {
+                                sessionStorage.setItem('nkwabiz_token', data.access_token || '');
+                                sessionStorage.setItem('nkwabiz_business', data.business_name || '');
+                            } catch (e) { console.warn('sessionStorage not available', e); }
+
+                            // Redirect to dashboard
+                            window.location.href = 'dashboard.html';
+                        } else {
+                            const msg = data.message || `Login failed (status ${resp.status})`;
+                            alert(msg);
+                        }
+                    } catch (err) {
+                        console.error('Login error:', err);
+                        alert('Network or server error. Please try again later.');
+                    } finally {
                         this.submitting = false;
-                    }, 1500);
+                    }
                 }
             }
         }).mount('#app');
