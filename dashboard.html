@@ -104,6 +104,7 @@
             padding: 6px;
             margin: 0;
             color: #000 !important;
+            opacity: 1 !important;
             border-radius: 6px;
             width: 32px;
             height: 32px;
@@ -116,7 +117,12 @@
             background: #f2f2f2
         }
 
-    .dot-btn svg { display:block; fill: currentColor; width:18px; height:18px; }
+        .dot-btn svg {
+            display: block !important;
+            fill: currentColor !important;
+            width: 18px !important;
+            height: 18px !important;
+        }
 
         .menu-dropdown {
             position: absolute;
@@ -569,7 +575,7 @@
                         return this.bulkPosting ? 'Posting...' : 'Start bulk post';
                     }
                 },
-                
+
                 mounted() {
                     try {
                         this.business = sessionStorage.getItem('nkwabiz_business') || '';
