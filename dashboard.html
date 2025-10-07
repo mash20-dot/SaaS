@@ -98,12 +98,18 @@
         .dot-btn {
             background: transparent;
             border: none;
-            font-size: 20px;
+            font-size: 18px;
             line-height: 1;
             cursor: pointer;
-            padding: 6px 8px;
+            padding: 6px;
+            margin: 0;
             color: #333;
             border-radius: 6px;
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .dot-btn:hover {
@@ -112,15 +118,15 @@
 
         .menu-dropdown {
             position: absolute;
-            right: 8px;
-            top: 36px;
+            right: 6px;
+            top: calc(100% + 6px);
             background: #fff;
             border: 1px solid #eee;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
             border-radius: 6px;
             padding: 6px 6px;
             z-index: 50;
-            min-width: 120px;
+            min-width: 140px;
         }
 
         .menu-item {
@@ -465,8 +471,11 @@
                                     </div>
                                     <div v-else style="position:relative; display:inline-block">
                                         <button class="dot-btn" @click.stop="toggleMenu(p)"
-                                            title="Product actions">&#8942;</button>
-                                        <div v-if="openMenuId === getProductId(p)" class="menu-dropdown">
+                                            :aria-expanded="openMenuId === getProductId(p)"
+                                            :aria-controls="`menu-` + getProductId(p)"
+                                            :title="'Actions for ' + (p.product_name || 'product')">&#8942;</button>
+                                        <div v-if="openMenuId === getProductId(p)" :id="`menu-` + getProductId(p)"
+                                            class="menu-dropdown">
                                             <button class="menu-item" @click.stop="startEditFromMenu(p, idx)">
                                                 Edit product
                                             </button>
