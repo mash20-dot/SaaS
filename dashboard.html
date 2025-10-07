@@ -451,28 +451,36 @@
                                     <template v-else>{{ p.supplier_info || '-' }}</template>
                                 </td>
                                 <td style="text-align:center">
-                                    <div v-if="editRowId === getProductId(p) && editProduct"
-                                        style="display:flex; gap:8px; justify-content:center; flex-direction:column; align-items:center">
-                                        <div style="display:flex; gap:8px;">
-                                            <button class="btn" @click="saveEdit(getProductId(p))"
-                                                :disabled="editing">Save</button>
-                                            <button class="btn" style="background:#fff;color:#000;border:1px solid #ddd"
-                                                @click="cancelEdit">Cancel</button>
-                                        </div>
-                                        <div v-if="editMessage" :class="['status', editMessageType]"
-                                            style="margin-top:8px">{{ editMessage }}</div>
+                                    <div v-if="editRowId === getProductId(p)"
+                                        style="display:flex; gap:6px; justify-content:center; align-items:center; flex-wrap:wrap">
+                                        <button class="btn" @click="saveEdit(getProductId(p))" :disabled="editing"
+                                            style="padding:6px 12px">
+                                            {{ editing ? 'Saving...' : 'Save' }}
+                                        </button>
+                                        <button class="btn"
+                                            style="background:#fff;color:#000;border:1px solid #ddd; padding:6px 12px"
+                                            @click="cancelEdit" :disabled="editing">
+                                            Cancel
+                                        </button>
                                     </div>
                                     <div v-else style="position:relative; display:inline-block">
-                                        <button class="dot-btn" @click.stop="toggleMenu(p)">&#8942;</button>
+                                        <button class="dot-btn" @click.stop="toggleMenu(p)"
+                                            title="Product actions">&#8942;</button>
                                         <div v-if="openMenuId === getProductId(p)" class="menu-dropdown">
-                                            <button class="menu-item" @click.stop="startEditFromMenu(p, idx)">Edit
-                                                data</button>
+                                            <button class="menu-item" @click.stop="startEditFromMenu(p, idx)">
+                                                Edit product
+                                            </button>
                                         </div>
                                     </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+
+                    <!-- Edit status message below table -->
+                    <div v-if="editMessage" :class="['status', editMessageType]" style="margin-top:16px">
+                        {{ editMessage }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -603,8 +611,8 @@
                     },
                     startEditFromMenu(p, idx) {
                         this.openMenuId = null;
-                        this.startEdit(p, idx);
                         document.removeEventListener('click', this.handleDocClick);
+                        this.startEdit(p, idx);
                     },
                     startEdit(p, idx) {
                         if (this.editMessageTimer) {
@@ -614,7 +622,13 @@
                         this.editMessage = '';
                         this.editMessageType = '';
 
-                        // assign editProduct first to avoid template reading null during render
+                        const productId = this.getProductId(p);
+                        if (!productId) {
+                            console.error('Cannot edit product without ID', p);
+                            return;
+                        }
+
+                        // Create a copy of the product data for editing
                         this.editProduct = {
                             product_name: p.product_name || '',
                             selling_price: p.selling_price || 0,
@@ -623,8 +637,8 @@
                             supplier_info: p.supplier_info || ''
                         };
 
-                        this.editRowId = this.getProductId(p);
-                        this.editIndex = (typeof idx === 'number') ? idx : this.products.findIndex(x => this.getProductId(x) === this.getProductId(p));
+                        this.editRowId = productId;
+                        this.editIndex = (typeof idx === 'number') ? idx : this.products.findIndex(x => this.getProductId(x) === productId);
                     },
                     cancelEdit() {
                         this.editRowId = null;
@@ -638,49 +652,64 @@
                         this.editMessageType = '';
                     },
                     async saveEdit(productId) {
-                        if (!this.editProduct) return;
+                        if (!this.editProduct) {
+                            this.editMessage = 'No product data to save.';
+                            this.editMessageType = 'error';
+                            return;
+                        }
+
                         const idToUse = productId || this.editRowId;
                         if (!idToUse) {
                             this.editMessage = 'No product selected for update.';
                             this.editMessageType = 'error';
                             return;
                         }
-                        productId = idToUse;
+
                         this.editing = true;
+                        this.editMessage = '';
+                        this.editMessageType = '';
+
                         try {
                             const payload = {
                                 product_name: this.editProduct.product_name,
-                                selling_price: this.editProduct.selling_price,
-                                initial_stock: this.editProduct.initial_stock,
+                                selling_price: Number(this.editProduct.selling_price),
+                                initial_stock: Number(this.editProduct.initial_stock),
                                 expiration_date: this.editProduct.expiration_date,
                                 supplier_info: this.editProduct.supplier_info
                             };
-                            const resp = await apiFetch(`https://saas-tool-mf02.onrender.com/product_view/product/${productId}`, {
+
+                            const resp = await apiFetch(`https://saas-tool-mf02.onrender.com/product_view/product/${idToUse}`, {
                                 method: 'PUT',
                                 body: JSON.stringify(payload)
                             });
+
                             const data = await resp.json().catch(() => ({}));
+
                             if (!resp.ok) {
                                 console.warn('Update failed', resp.status, data);
                                 this.editMessage = data.message || `Update failed (status ${resp.status})`;
                                 this.editMessageType = 'error';
                                 return;
                             }
-                            const idx = (this.editIndex > -1) ? this.editIndex : this.products.findIndex(x => x.id === productId);
+
+                            // Update the product in the local array
+                            const idx = this.editIndex > -1 ? this.editIndex : this.products.findIndex(x => this.getProductId(x) === idToUse);
                             if (idx > -1) {
-                                this.products.splice(idx, 1, Object.assign({}, this.products[idx], data.product || {}));
+                                const updatedProduct = this.normalizeProduct(data.product || payload);
+                                updatedProduct.id = idToUse;
+                                updatedProduct.remaining_stock = this.products[idx].remaining_stock; // Preserve remaining stock
+                                this.products.splice(idx, 1, updatedProduct);
                             }
+
                             this.editMessage = data.message || 'Product updated successfully.';
                             this.editMessageType = 'success';
+
+                            // Auto-close edit mode after 2 seconds
                             if (this.editMessageTimer) clearTimeout(this.editMessageTimer);
                             this.editMessageTimer = setTimeout(() => {
-                                this.editRowId = null;
-                                this.editIndex = -1;
-                                this.editProduct = null;
-                                this.editMessage = '';
-                                this.editMessageType = '';
-                                this.editMessageTimer = null;
-                            }, 2500);
+                                this.cancelEdit();
+                            }, 2000);
+
                         } catch (err) {
                             console.error('saveEdit error', err);
                             this.editMessage = 'Network error while updating product.';
