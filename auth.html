@@ -210,6 +210,24 @@
             opacity: 0;
         }
 
+        /* Inline status banner */
+        .status {
+            margin-top: 12px;
+            font-size: 14px;
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .status.success {
+            color: #155724;
+            background: #d4edda;
+        }
+
+        .status.error {
+            color: #721c24;
+            background: #f8d7da;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .auth-form {
@@ -238,6 +256,9 @@
         <!-- Main Content -->
         <div class="main-content">
             <div class="auth-container">
+                <!-- Status message (shared) -->
+                <div v-if="statusMessage" :class="['status', statusType]">{{ statusMessage }}</div>
+
                 <!-- Signup Form -->
                 <transition name="fade">
                     <div v-if="showSignup" class="auth-form" key="signup">
@@ -267,6 +288,12 @@
                             </div>
 
                             <div class="form-group">
+                                <label for="signup-location" class="form-label">Location</label>
+                                <input type="text" id="signup-location" class="form-input" v-model="signupForm.location"
+                                    required placeholder="City, Region">
+                            </div>
+
+                            <div class="form-group">
                                 <label for="signup-business" class="form-label">Business Name</label>
                                 <input type="text" id="signup-business" class="form-input"
                                     v-model="signupForm.businessName" required placeholder="Your Business Name">
@@ -284,6 +311,8 @@
                                 <span v-else>Create free account</span>
                             </button>
                         </form>
+
+                        <!-- status is shown above -->
 
                         <div class="switch-auth">
                             Already have an account? <a @click="showSignup = false">Log in</a>
@@ -346,9 +375,12 @@
                         name: '',
                         email: '',
                         phone: '',
+                        location: '',
                         businessName: '',
                         password: ''
                     },
+                    statusMessage: '',
+                    statusType: '', // e.g., 'success' or 'error'
                     loginForm: {
                         email: '',
                         password: ''
@@ -365,6 +397,8 @@
             methods: {
                 async handleSignup() {
                     this.submitting = true;
+                    this.statusMessage = '';
+                    this.statusType = '';
 
                     // Build payload using backend's expected names
                     const payload = {
@@ -373,7 +407,7 @@
                         business_name: this.signupForm.businessName || '',
                         email: this.signupForm.email || '',
                         phone: this.signupForm.phone || '',
-                        location: '', // optional - not collected in form
+                        location: this.signupForm.location || '',
                         password: ''
                     };
 
@@ -395,18 +429,23 @@
                         const data = await resp.json().catch(() => ({}));
 
                         if (resp.ok) {
-                            // Backend indicates success. Switch to login view and show message.
-                            alert(data.message || 'Account created successfully. Please log in.');
-                            // redirect to login view so user can sign in
-                            window.location.href = 'auth.html?action=login';
+                            // Backend indicates success. Show inline message then redirect to login.
+                            this.statusType = 'success';
+                            this.statusMessage = data.message || 'Account created successfully — redirecting to login...';
+                            // short delay to show message
+                            setTimeout(() => {
+                                window.location.href = 'auth.html?action=login';
+                            }, 900);
                         } else {
-                            // Show backend-provided message or generic error
+                            // Show backend-provided message inline
                             const msg = data.message || `Signup failed (status ${resp.status})`;
-                            alert(msg);
+                            this.statusType = 'error';
+                            this.statusMessage = msg;
                         }
                     } catch (err) {
                         console.error('Signup error:', err);
-                        alert('Network or server error. Please try again later.');
+                        this.statusType = 'error';
+                        this.statusMessage = 'Network or server error. Please try again later.';
                     } finally {
                         this.submitting = false;
                     }
@@ -449,11 +488,13 @@
                             window.location.href = 'dashboard.html';
                         } else {
                             const msg = data.message || `Login failed (status ${resp.status})`;
-                            alert(msg);
+                            this.statusType = 'error';
+                            this.statusMessage = msg;
                         }
                     } catch (err) {
                         console.error('Login error:', err);
-                        alert('Network or server error. Please try again later.');
+                        this.statusType = 'error';
+                        this.statusMessage = 'Network or server error. Please try again later.';
                     } finally {
                         this.submitting = false;
                     }
