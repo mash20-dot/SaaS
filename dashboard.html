@@ -413,7 +413,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(p, idx) in products" :key="idx">
+                            <tr v-for="(p, idx) in products" :key="p.id || idx">
                                 <td>
                                     <template v-if="editRowId === p.id">
                                         <input class="form-input" v-model="editProduct.product_name">
@@ -457,7 +457,7 @@
                                     <div v-else style="position:relative; display:inline-block">
                                         <button class="dot-btn" @click.stop="toggleMenu(p)">&#8942;</button>
                                         <div v-if="openMenuId === p.id" class="menu-dropdown">
-                                            <button class="menu-item" @click.stop="startEditFromMenu(p)">Edit
+                                            <button class="menu-item" @click.stop="startEditFromMenu(p, idx)">Edit
                                                 data</button>
                                         </div>
                                     </div>
@@ -499,6 +499,7 @@
                         bulkStatus: '',
                         bulkResults: [],
                         editRowId: null,
+                        editIndex: -1,
                         editProduct: null,
                         editing: false,
                         openMenuId: null
@@ -558,13 +559,14 @@
                             document.removeEventListener('click', this.handleDocClick);
                         }
                     },
-                    startEditFromMenu(p) {
+                    startEditFromMenu(p, idx) {
                         this.openMenuId = null;
-                        this.startEdit(p);
+                        this.startEdit(p, idx);
                         document.removeEventListener('click', this.handleDocClick);
                     },
-                    startEdit(p) {
+                    startEdit(p, idx) {
                         this.editRowId = p.id;
+                        this.editIndex = (typeof idx === 'number') ? idx : this.products.findIndex(x => x.id === p.id);
                         // shallow copy for editing
                         this.editProduct = {
                             product_name: p.product_name || '',
@@ -576,6 +578,7 @@
                     },
                     cancelEdit() {
                         this.editRowId = null;
+                        this.editIndex = -1;
                         this.editProduct = null;
                     },
                     async saveEdit(productId) {
@@ -600,11 +603,13 @@
                                 return;
                             }
                             // update local products array
-                            const idx = this.products.findIndex(x => x.id === productId);
+                            const idx = (this.editIndex > -1) ? this.editIndex : this.products.findIndex(x => x.id === productId);
                             if (idx > -1) {
-                                this.products.splice(idx, 1, Object.assign({}, this.products[idx], data.product || {}));
+                                // replace the exact index to avoid duplicates
+                                this.$set ? this.$set(this.products, idx, Object.assign({}, this.products[idx], data.product || {})) : this.products.splice(idx, 1, Object.assign({}, this.products[idx], data.product || {}));
                             }
                             this.editRowId = null;
+                            this.editIndex = -1;
                             this.editProduct = null;
                         } catch (err) {
                             console.error('saveEdit error', err);
@@ -790,4 +795,4 @@
     </script>
 </body>
 
-</html>
+</
