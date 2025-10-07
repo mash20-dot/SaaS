@@ -166,238 +166,245 @@
     </div>
 
     <script>
-        const { createApp } = Vue;
-        createApp({
-            data() {
-                return {
-                    business: '',
-                    welcomeTitle: 'Welcome',
-                    subtitle: "This is your dashboard. We'll build features here next.",
-                    loading: false,
-                    errorMessage: '',
-                    products: [],
-                    // post product UI state
-                    showPostForm: false,
-                    posting: false,
-                    postMessage: '',
-                    postMessageType: '',
-                    newProduct: {
-                        product_name: '',
-                        selling_price: '',
-                        initial_stock: '',
-                        expiration_date: '',
-                        supplier_info: ''
-                    }
-                    ,
-                    // bulk upload state
-                    showBulk: false,
-                    bulkText: '',
-                    bulkPosting: false,
-                    bulkStatus: '',
-                    bulkResults: []
-                }
-            },
-            mounted() {
-                try {
-                    this.business = sessionStorage.getItem('nkwabiz_business') || '';
-                } catch (e) { this.business = ''; }
-
-                if (this.business) {
-                    this.subtitle = `Business: ${this.business}`;
-                    // fetch analytics when business present
-                    this.loadAnalytics();
-                }
-            },
-            methods: {
-                formatNumber(v) {
-                    if (v == null || v === '') return '-';
-                    return Number(v).toLocaleString();
-                },
-
-                formatDate(d) {
-                    if (!d) return '-';
-                    const dt = new Date(d);
-                    if (isNaN(dt)) return d;
-                    return dt.toLocaleDateString();
-                },
-
-                async loadAnalytics() {
-                    this.loading = true;
-                    this.errorMessage = '';
-                    try {
-                        const resp = await apiFetch('https://saas-tool-mf02.onrender.com/dashboard/dash', { method: 'GET' });
-                        if (!resp.ok) {
-                            let body = '';
-                            try { body = await resp.text(); } catch (e) { }
-                            this.errorMessage = `Failed to load analytics (status ${resp.status}).`;
-                            console.warn('analytics load failed', resp.status, body);
-                            return;
+        try {
+            const { createApp } = Vue;
+            createApp({
+                data() {
+                    return {
+                        business: '',
+                        welcomeTitle: 'Welcome',
+                        subtitle: "This is your dashboard. We'll build features here next.",
+                        loading: false,
+                        errorMessage: '',
+                        products: [],
+                        // post product UI state
+                        showPostForm: false,
+                        posting: false,
+                        postMessage: '',
+                        postMessageType: '',
+                        newProduct: {
+                            product_name: '',
+                            selling_price: '',
+                            initial_stock: '',
+                            expiration_date: '',
+                            supplier_info: ''
                         }
-
-                        const data = await resp.json().catch(() => null);
-                        // Expecting an array or object containing product info
-                        if (Array.isArray(data)) {
-                            this.products = data;
-                        } else if (data && data.product_name) {
-                            // single product returned as object
-                            this.products = [data];
-                        } else if (data && data.products && Array.isArray(data.products)) {
-                            this.products = data.products;
-                        } else {
-                            this.products = [];
-                        }
-                    } catch (err) {
-                        console.error('loadAnalytics error', err);
-                        this.errorMessage = 'Network error while loading analytics.';
-                    } finally {
-                        this.loading = false;
+                        ,
+                        // bulk upload state
+                        showBulk: false,
+                        bulkText: '',
+                        bulkPosting: false,
+                        bulkStatus: '',
+                        bulkResults: []
                     }
                 },
-                async postProduct() {
-                    this.posting = true;
-                    this.postMessage = '';
-                    this.postMessageType = '';
+                mounted() {
                     try {
-                        const payload = {
-                            product_name: this.newProduct.product_name,
-                            selling_price: this.newProduct.selling_price,
-                            initial_stock: this.newProduct.initial_stock,
-                            expiration_date: this.newProduct.expiration_date,
-                            supplier_info: this.newProduct.supplier_info
-                        };
+                        this.business = sessionStorage.getItem('nkwabiz_business') || '';
+                    } catch (e) { this.business = ''; }
 
-                        const resp = await apiFetch('https://saas-tool-mf02.onrender.com/product_view/product/post_product', {
-                            method: 'POST',
-                            body: JSON.stringify(payload)
-                        });
-
-                        const data = await resp.json().catch(() => ({}));
-                        if (!resp.ok) {
-                            const msg = data.message || `Failed to post product (status ${resp.status})`;
-                            this.postMessage = msg;
-                            this.postMessageType = 'error';
-                            return;
-                        }
-
-                        this.postMessage = data.message || 'Product posted successfully.';
-                        this.postMessageType = 'success';
-                        // clear form
-                        this.newProduct = { product_name: '', selling_price: '', initial_stock: '', expiration_date: '', supplier_info: '' };
-                        this.showPostForm = false;
-                        // refresh analytics
+                    if (this.business) {
+                        this.subtitle = `Business: ${this.business}`;
+                        // fetch analytics when business present
                         this.loadAnalytics();
-                    } catch (err) {
-                        console.error('postProduct error', err);
-                        this.postMessage = 'Network error while posting product.';
-                        this.postMessageType = 'error';
-                    } finally {
-                        this.posting = false;
                     }
                 },
-                onFileChange(e) {
-                    const f = e.target.files && e.target.files[0];
-                    if (!f) return;
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        this.bulkText = String(ev.target.result || '');
-                    };
-                    reader.readAsText(f);
-                },
+                methods: {
+                    formatNumber(v) {
+                        if (v == null || v === '') return '-';
+                        return Number(v).toLocaleString();
+                    },
 
-                parseCSV(text) {
-                    // Very small CSV parser that supports header row
-                    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-                    if (!lines.length) return [];
-                    const header = lines[0].split(',').map(h => h.trim());
-                    const rows = lines.slice(1).map(line => line.split(',').map(cell => cell.trim()));
-                    return rows.map(cells => {
-                        const obj = {};
-                        for (let i = 0; i < header.length; i++) obj[header[i]] = cells[i] || '';
-                        return obj;
-                    });
-                },
+                    formatDate(d) {
+                        if (!d) return '-';
+                        const dt = new Date(d);
+                        if (isNaN(dt)) return d;
+                        return dt.toLocaleDateString();
+                    },
 
-                async startBulk() {
-                    // Prepare list of products
-                    const text = this.bulkText.trim();
-                    if (!text) { this.bulkStatus = 'No CSV content'; return; }
-                    this.bulkPosting = true;
-                    this.bulkStatus = 'Parsing CSV...';
-                    this.bulkResults = [];
-
-                    try {
-                        // Try to detect if first line is header (contains product_name)
-                        const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-                        let items = [];
-                        if (lines[0] && lines[0].toLowerCase().includes('product_name')) {
-                            items = this.parseCSV(text);
-                        } else {
-                            // No header: assume columns in order
-                            items = lines.map(line => {
-                                const c = line.split(',').map(s => s.trim());
-                                return {
-                                    product_name: c[0] || '',
-                                    selling_price: c[1] || '',
-                                    initial_stock: c[2] || '',
-                                    expiration_date: c[3] || '',
-                                    supplier_info: c[4] || ''
-                                };
-                            });
-                        }
-
-                        this.bulkStatus = `Posting ${items.length} items...`;
-
-                        // Post sequentially to avoid overloading server; collect results
-                        for (let i = 0; i < items.length; i++) {
-                            const it = items[i];
-                            try {
-                                const payload = {
-                                    product_name: it.product_name,
-                                    selling_price: it.selling_price,
-                                    initial_stock: it.initial_stock,
-                                    expiration_date: it.expiration_date,
-                                    supplier_info: it.supplier_info
-                                };
-
-                                const resp = await apiFetch('https://saas-tool-mf02.onrender.com/product_view/product/post_product', {
-                                    method: 'POST',
-                                    body: JSON.stringify(payload)
-                                });
-
-                                const data = await resp.json().catch(() => ({}));
-                                if (!resp.ok) {
-                                    this.bulkResults.push({ ...it, ok: false, message: data.message || `status ${resp.status}` });
-                                } else {
-                                    this.bulkResults.push({ ...it, ok: true, message: data.message || 'OK' });
-                                }
-                            } catch (err) {
-                                this.bulkResults.push({ ...it, ok: false, message: 'Network error' });
+                    async loadAnalytics() {
+                        this.loading = true;
+                        this.errorMessage = '';
+                        try {
+                            const resp = await apiFetch('https://saas-tool-mf02.onrender.com/dashboard/dash', { method: 'GET' });
+                            if (!resp.ok) {
+                                let body = '';
+                                try { body = await resp.text(); } catch (e) { }
+                                this.errorMessage = `Failed to load analytics (status ${resp.status}).`;
+                                console.warn('analytics load failed', resp.status, body);
+                                return;
                             }
-                            this.bulkStatus = `Posted ${i + 1}/${items.length}`;
+
+                            const data = await resp.json().catch(() => null);
+                            // Expecting an array or object containing product info
+                            if (Array.isArray(data)) {
+                                this.products = data;
+                            } else if (data && data.product_name) {
+                                // single product returned as object
+                                this.products = [data];
+                            } else if (data && data.products && Array.isArray(data.products)) {
+                                this.products = data.products;
+                            } else {
+                                this.products = [];
+                            }
+                        } catch (err) {
+                            console.error('loadAnalytics error', err);
+                            this.errorMessage = 'Network error while loading analytics.';
+                        } finally {
+                            this.loading = false;
                         }
+                    },
+                    async postProduct() {
+                        this.posting = true;
+                        this.postMessage = '';
+                        this.postMessageType = '';
+                        try {
+                            const payload = {
+                                product_name: this.newProduct.product_name,
+                                selling_price: this.newProduct.selling_price,
+                                initial_stock: this.newProduct.initial_stock,
+                                expiration_date: this.newProduct.expiration_date,
+                                supplier_info: this.newProduct.supplier_info
+                            };
 
-                        this.bulkStatus = `Done: ${this.bulkResults.filter(r => r.ok).length} succeeded, ${this.bulkResults.filter(r => !r.ok).length} failed.`;
-                        // refresh analytics
-                        this.loadAnalytics();
-                    } finally {
-                        this.bulkPosting = false;
+                            const resp = await apiFetch('https://saas-tool-mf02.onrender.com/product_view/product/post_product', {
+                                method: 'POST',
+                                body: JSON.stringify(payload)
+                            });
+
+                            const data = await resp.json().catch(() => ({}));
+                            if (!resp.ok) {
+                                const msg = data.message || `Failed to post product (status ${resp.status})`;
+                                this.postMessage = msg;
+                                this.postMessageType = 'error';
+                                return;
+                            }
+
+                            this.postMessage = data.message || 'Product posted successfully.';
+                            this.postMessageType = 'success';
+                            // clear form
+                            this.newProduct = { product_name: '', selling_price: '', initial_stock: '', expiration_date: '', supplier_info: '' };
+                            this.showPostForm = false;
+                            // refresh analytics
+                            this.loadAnalytics();
+                        } catch (err) {
+                            console.error('postProduct error', err);
+                            this.postMessage = 'Network error while posting product.';
+                            this.postMessageType = 'error';
+                        } finally {
+                            this.posting = false;
+                        }
+                    },
+                    onFileChange(e) {
+                        const f = e.target.files && e.target.files[0];
+                        if (!f) return;
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            this.bulkText = String(ev.target.result || '');
+                        };
+                        reader.readAsText(f);
+                    },
+
+                    parseCSV(text) {
+                        // Very small CSV parser that supports header row
+                        const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+                        if (!lines.length) return [];
+                        const header = lines[0].split(',').map(h => h.trim());
+                        const rows = lines.slice(1).map(line => line.split(',').map(cell => cell.trim()));
+                        return rows.map(cells => {
+                            const obj = {};
+                            for (let i = 0; i < header.length; i++) obj[header[i]] = cells[i] || '';
+                            return obj;
+                        });
+                    },
+
+                    async startBulk() {
+                        // Prepare list of products
+                        const text = this.bulkText.trim();
+                        if (!text) { this.bulkStatus = 'No CSV content'; return; }
+                        this.bulkPosting = true;
+                        this.bulkStatus = 'Parsing CSV...';
+                        this.bulkResults = [];
+
+                        try {
+                            // Try to detect if first line is header (contains product_name)
+                            const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+                            let items = [];
+                            if (lines[0] && lines[0].toLowerCase().includes('product_name')) {
+                                items = this.parseCSV(text);
+                            } else {
+                                // No header: assume columns in order
+                                items = lines.map(line => {
+                                    const c = line.split(',').map(s => s.trim());
+                                    return {
+                                        product_name: c[0] || '',
+                                        selling_price: c[1] || '',
+                                        initial_stock: c[2] || '',
+                                        expiration_date: c[3] || '',
+                                        supplier_info: c[4] || ''
+                                    };
+                                });
+                            }
+
+                            this.bulkStatus = `Posting ${items.length} items...`;
+
+                            // Post sequentially to avoid overloading server; collect results
+                            for (let i = 0; i < items.length; i++) {
+                                const it = items[i];
+                                try {
+                                    const payload = {
+                                        product_name: it.product_name,
+                                        selling_price: it.selling_price,
+                                        initial_stock: it.initial_stock,
+                                        expiration_date: it.expiration_date,
+                                        supplier_info: it.supplier_info
+                                    };
+
+                                    const resp = await apiFetch('https://saas-tool-mf02.onrender.com/product_view/product/post_product', {
+                                        method: 'POST',
+                                        body: JSON.stringify(payload)
+                                    });
+
+                                    const data = await resp.json().catch(() => ({}));
+                                    if (!resp.ok) {
+                                        this.bulkResults.push({ ...it, ok: false, message: data.message || `status ${resp.status}` });
+                                    } else {
+                                        this.bulkResults.push({ ...it, ok: true, message: data.message || 'OK' });
+                                    }
+                                } catch (err) {
+                                    this.bulkResults.push({ ...it, ok: false, message: 'Network error' });
+                                }
+                                this.bulkStatus = `Posted ${i + 1}/${items.length}`;
+                            }
+
+                            this.bulkStatus = `Done: ${this.bulkResults.filter(r => r.ok).length} succeeded, ${this.bulkResults.filter(r => !r.ok).length} failed.`;
+                            // refresh analytics
+                            this.loadAnalytics();
+                        } finally {
+                            this.bulkPosting = false;
+                        }
+                    },
+                    signout() {
+                        try { sessionStorage.removeItem('nkwabiz_token'); sessionStorage.removeItem('nkwabiz_business'); } catch (e) { }
+                        window.location.href = 'index.html';
                     }
-                },
-                signout() {
-                    try { sessionStorage.removeItem('nkwabiz_token'); sessionStorage.removeItem('nkwabiz_business'); } catch (e) { }
-                    window.location.href = 'index.html';
                 }
-            }
-        }).mount('#app');
+            }).mount('#app');
+        } catch (e) {
+            console.error('Dashboard init error', e);
+            // show error on page for debugging
+            try {
+                const node = document.createElement('pre');
+                node.id = 'dashboard-error';
+                node.style.background = '#fee';
+                node.style.color = '#900';
+                node.style.padding = '12px';
+                node.style.margin = '20px';
+                node.textContent = String(e && e.stack ? e.stack : e);
+                document.body.insertBefore(node, document.body.firstChild);
+            } catch (inner) { /* ignore */ }
+        }
     </script>
-</body>
-
-</html>
-// apiFetch('https://saas-tool-mf02.onrender.com/api/business', { method: 'GET' })
-// .then(r => r.json())
-// .then(data => console.log('protected data', data))
-// .catch(err => console.warn('protected call failed', err));
-</script>
 </body>
 
 </html>
