@@ -449,10 +449,15 @@
                                 </td>
                                 <td style="text-align:center">
                                     <div v-if="editRowId === p.id"
-                                        style="display:flex; gap:8px; justify-content:center">
-                                        <button class="btn" @click="saveEdit(p.id)" :disabled="editing">Save</button>
-                                        <button class="btn" style="background:#fff;color:#000;border:1px solid #ddd"
-                                            @click="cancelEdit">Cancel</button>
+                                        style="display:flex; gap:8px; justify-content:center; flex-direction:column; align-items:center">
+                                        <div style="display:flex; gap:8px;">
+                                            <button class="btn" @click="saveEdit(p.id)"
+                                                :disabled="editing">Save</button>
+                                            <button class="btn" style="background:#fff;color:#000;border:1px solid #ddd"
+                                                @click="cancelEdit">Cancel</button>
+                                        </div>
+                                        <div v-if="editMessage" :class="['status', editMessageType]"
+                                            style="margin-top:8px">{{ editMessage }}</div>
                                     </div>
                                     <div v-else style="position:relative; display:inline-block">
                                         <button class="dot-btn" @click.stop="toggleMenu(p)">&#8942;</button>
@@ -502,7 +507,10 @@
                         editIndex: -1,
                         editProduct: null,
                         editing: false,
-                        openMenuId: null
+                        openMenuId: null,
+                        editMessage: '',
+                        editMessageType: '',
+                        editMessageTimer: null
                     }
                 },
                 computed: {
@@ -565,6 +573,14 @@
                         document.removeEventListener('click', this.handleDocClick);
                     },
                     startEdit(p, idx) {
+                        // clear any prior messages/timers
+                        if (this.editMessageTimer) {
+                            clearTimeout(this.editMessageTimer);
+                            this.editMessageTimer = null;
+                        }
+                        this.editMessage = '';
+                        this.editMessageType = '';
+
                         this.editRowId = p.id;
                         this.editIndex = (typeof idx === 'number') ? idx : this.products.findIndex(x => x.id === p.id);
                         // shallow copy for editing
@@ -580,6 +596,12 @@
                         this.editRowId = null;
                         this.editIndex = -1;
                         this.editProduct = null;
+                        if (this.editMessageTimer) {
+                            clearTimeout(this.editMessageTimer);
+                            this.editMessageTimer = null;
+                        }
+                        this.editMessage = '';
+                        this.editMessageType = '';
                     },
                     async saveEdit(productId) {
                         if (!this.editProduct) return;
@@ -599,7 +621,8 @@
                             const data = await resp.json().catch(() => ({}));
                             if (!resp.ok) {
                                 console.warn('Update failed', resp.status, data);
-                                alert(data.message || `Update failed (status ${resp.status})`);
+                                this.editMessage = data.message || `Update failed (status ${resp.status})`;
+                                this.editMessageType = 'error';
                                 return;
                             }
                             // update local products array
@@ -608,12 +631,22 @@
                                 // replace the exact index to avoid duplicates
                                 this.$set ? this.$set(this.products, idx, Object.assign({}, this.products[idx], data.product || {})) : this.products.splice(idx, 1, Object.assign({}, this.products[idx], data.product || {}));
                             }
-                            this.editRowId = null;
-                            this.editIndex = -1;
-                            this.editProduct = null;
+                            // show backend success message inline and auto-close the edit row
+                            this.editMessage = data.message || 'Product updated successfully.';
+                            this.editMessageType = 'success';
+                            if (this.editMessageTimer) clearTimeout(this.editMessageTimer);
+                            this.editMessageTimer = setTimeout(() => {
+                                this.editRowId = null;
+                                this.editIndex = -1;
+                                this.editProduct = null;
+                                this.editMessage = '';
+                                this.editMessageType = '';
+                                this.editMessageTimer = null;
+                            }, 2500);
                         } catch (err) {
                             console.error('saveEdit error', err);
-                            alert('Network error while updating product.');
+                            this.editMessage = 'Network error while updating product.';
+                            this.editMessageType = 'error';
                         } finally {
                             this.editing = false;
                         }
