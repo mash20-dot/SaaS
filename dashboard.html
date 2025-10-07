@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -29,9 +28,13 @@
             box-shadow: none;
         }
 
-
         h1 {
             font-size: 24px;
+            margin-bottom: 8px
+        }
+
+        h2 {
+            font-size: 20px;
             margin-bottom: 8px
         }
 
@@ -49,6 +52,11 @@
             font-weight: 600
         }
 
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         .muted {
             color: #777
         }
@@ -59,6 +67,42 @@
             align-items: center;
             margin-bottom: 18px
         }
+
+        .form-input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .status {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        textarea {
+            font-family: inherit;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        input[type="file"] {
+            padding: 8px 0;
+        }
     </style>
 </head>
 
@@ -66,30 +110,22 @@
     <div id="app">
         <div class="container">
             <div class="topbar">
-                <div>
-                    <strong>NkwaBiz</strong>
-                </div>
-                <div class="muted">{{ business || 'Not signed in' }}</div>
+                <div><strong>NkwaBiz</strong></div>
+                <div class="muted">{{ businessDisplay }}</div>
             </div>
-
             <div class="card">
                 <h1>{{ welcomeTitle }}</h1>
                 <p>{{ subtitle }}</p>
-
                 <div style="margin-top:18px">
                     <button @click="signout" class="btn">Sign out</button>
                 </div>
             </div>
-
             <div class="card" style="margin-top:16px">
                 <h2>Product analytics</h2>
-
-                <div style="margin-top:12px; display:flex; gap:8px; align-items:center">
-                    <button class="btn" @click="showPostForm = !showPostForm">{{ showPostForm ? 'Cancel' : 'Post
-                        product' }}</button>
+                <div style="margin-top:12px; display:flex; gap:8px; align-items:center; flex-wrap:wrap">
+                    <button class="btn" @click="togglePostForm">{{ postFormButtonText }}</button>
                     <div class="muted">You can post a new product to your inventory.</div>
                 </div>
-
                 <div v-if="showPostForm" style="margin-top:12px; padding:8px 0">
                     <form @submit.prevent="postProduct" style="display:grid; gap:8px; max-width:520px">
                         <input v-model="newProduct.product_name" placeholder="Product name" required class="form-input">
@@ -100,35 +136,27 @@
                         <input v-model="newProduct.expiration_date" placeholder="Expiration date (YYYY-MM-DD)"
                             class="form-input" type="date">
                         <input v-model="newProduct.supplier_info" placeholder="Supplier info" class="form-input">
-
-                        <div style="display:flex; gap:8px; margin-top:6px">
-                            <button class="btn" :disabled="posting">{{ posting ? 'Posting…' : 'Submit product'
-                                }}</button>
+                        <div style="display:flex; gap:8px; margin-top:6px; flex-wrap:wrap; align-items:center">
+                            <button class="btn" type="submit" :disabled="posting">{{ submitButtonText }}</button>
                             <div v-if="postMessage" :class="['status', postMessageType]">{{ postMessage }}</div>
                         </div>
                     </form>
                 </div>
-
-                <!-- Bulk upload -->
                 <div style="margin-top:12px">
-                    <button class="btn" @click="showBulk = !showBulk">{{ showBulk ? 'Hide bulk uploader' : 'Post many
-                        products' }}</button>
+                    <button class="btn" @click="toggleBulk">{{ bulkButtonText }}</button>
                 </div>
-
                 <div v-if="showBulk" style="margin-top:12px; max-width:720px">
                     <p class="muted">Upload CSV with header row
                         (product_name,selling_price,initial_stock,expiration_date,supplier_info) or paste lines.</p>
                     <input type="file" accept=".csv,text/csv" @change="onFileChange">
                     <textarea v-model="bulkText" rows="6"
-                        placeholder="product_name,selling_price,initial_stock,expiration_date,supplier_info\n..."
-                        style="width:100%; margin-top:8px; padding:8px"></textarea>
-
-                    <div style="display:flex; gap:8px; margin-top:8px; align-items:center">
-                        <button class="btn" @click="startBulk" :disabled="bulkPosting">{{ bulkPosting ? 'Posting…' :
-                            'Start bulk post' }}</button>
+                        placeholder="product_name,selling_price,initial_stock,expiration_date,supplier_info&#10;Product A,10.50,100,2025-12-31,Supplier X"
+                        style="width:100%; margin-top:8px; padding:8px; box-sizing:border-box"></textarea>
+                    <div style="display:flex; gap:8px; margin-top:8px; align-items:center; flex-wrap:wrap">
+                        <button class="btn" @click="startBulk" :disabled="bulkPosting">{{ bulkStartButtonText
+                            }}</button>
                         <div class="muted">{{ bulkStatus }}</div>
                     </div>
-
                     <div v-if="bulkResults.length" style="margin-top:12px">
                         <div v-for="(r, i) in bulkResults" :key="i" style="padding:6px 0; border-bottom:1px solid #eee">
                             <div><strong>{{ r.product_name || '(no name)' }}</strong> — <span
@@ -138,14 +166,10 @@
                         </div>
                     </div>
                 </div>
-
-                <div v-if="loading" style="padding:18px">Loading data…</div>
-
+                <div v-if="loading" style="padding:18px">Loading data...</div>
                 <div v-if="errorMessage" :class="['status','error']" style="margin-top:12px">{{ errorMessage }}</div>
-
                 <div v-if="!loading && products.length === 0" style="padding:18px" class="muted">No product analytics
                     available yet.</div>
-
                 <div v-if="products.length > 0" style="margin-top:12px">
                     <div v-for="(p, idx) in products" :key="idx"
                         style="margin-bottom:8px; padding:6px 0; border-bottom:1px solid #eee">
@@ -164,7 +188,6 @@
             </div>
         </div>
     </div>
-
     <script>
         try {
             const { createApp } = Vue;
@@ -177,7 +200,6 @@
                         loading: false,
                         errorMessage: '',
                         products: [],
-                        // post product UI state
                         showPostForm: false,
                         posting: false,
                         postMessage: '',
@@ -188,9 +210,7 @@
                             initial_stock: '',
                             expiration_date: '',
                             supplier_info: ''
-                        }
-                        ,
-                        // bulk upload state
+                        },
                         showBulk: false,
                         bulkText: '',
                         bulkPosting: false,
@@ -198,30 +218,52 @@
                         bulkResults: []
                     }
                 },
+                computed: {
+                    businessDisplay() {
+                        return this.business || 'Not signed in';
+                    },
+                    postFormButtonText() {
+                        return this.showPostForm ? 'Cancel' : 'Post product';
+                    },
+                    submitButtonText() {
+                        return this.posting ? 'Posting...' : 'Submit product';
+                    },
+                    bulkButtonText() {
+                        return this.showBulk ? 'Hide bulk uploader' : 'Post many products';
+                    },
+                    bulkStartButtonText() {
+                        return this.bulkPosting ? 'Posting...' : 'Start bulk post';
+                    }
+                },
                 mounted() {
                     try {
                         this.business = sessionStorage.getItem('nkwabiz_business') || '';
-                    } catch (e) { this.business = ''; }
-
+                    } catch (e) {
+                        this.business = '';
+                        console.warn('Could not access sessionStorage', e);
+                    }
                     if (this.business) {
                         this.subtitle = `Business: ${this.business}`;
-                        // fetch analytics when business present
                         this.loadAnalytics();
                     }
                 },
                 methods: {
+                    togglePostForm() {
+                        this.showPostForm = !this.showPostForm;
+                    },
+                    toggleBulk() {
+                        this.showBulk = !this.showBulk;
+                    },
                     formatNumber(v) {
                         if (v == null || v === '') return '-';
                         return Number(v).toLocaleString();
                     },
-
                     formatDate(d) {
                         if (!d) return '-';
                         const dt = new Date(d);
                         if (isNaN(dt)) return d;
                         return dt.toLocaleDateString();
                     },
-
                     async loadAnalytics() {
                         this.loading = true;
                         this.errorMessage = '';
@@ -234,13 +276,10 @@
                                 console.warn('analytics load failed', resp.status, body);
                                 return;
                             }
-
                             const data = await resp.json().catch(() => null);
-                            // Expecting an array or object containing product info
                             if (Array.isArray(data)) {
                                 this.products = data;
                             } else if (data && data.product_name) {
-                                // single product returned as object
                                 this.products = [data];
                             } else if (data && data.products && Array.isArray(data.products)) {
                                 this.products = data.products;
@@ -266,12 +305,10 @@
                                 expiration_date: this.newProduct.expiration_date,
                                 supplier_info: this.newProduct.supplier_info
                             };
-
                             const resp = await apiFetch('https://saas-tool-mf02.onrender.com/product_view/product/post_product', {
                                 method: 'POST',
                                 body: JSON.stringify(payload)
                             });
-
                             const data = await resp.json().catch(() => ({}));
                             if (!resp.ok) {
                                 const msg = data.message || `Failed to post product (status ${resp.status})`;
@@ -279,13 +316,10 @@
                                 this.postMessageType = 'error';
                                 return;
                             }
-
                             this.postMessage = data.message || 'Product posted successfully.';
                             this.postMessageType = 'success';
-                            // clear form
                             this.newProduct = { product_name: '', selling_price: '', initial_stock: '', expiration_date: '', supplier_info: '' };
                             this.showPostForm = false;
-                            // refresh analytics
                             this.loadAnalytics();
                         } catch (err) {
                             console.error('postProduct error', err);
@@ -304,9 +338,7 @@
                         };
                         reader.readAsText(f);
                     },
-
                     parseCSV(text) {
-                        // Very small CSV parser that supports header row
                         const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
                         if (!lines.length) return [];
                         const header = lines[0].split(',').map(h => h.trim());
@@ -317,23 +349,18 @@
                             return obj;
                         });
                     },
-
                     async startBulk() {
-                        // Prepare list of products
                         const text = this.bulkText.trim();
                         if (!text) { this.bulkStatus = 'No CSV content'; return; }
                         this.bulkPosting = true;
                         this.bulkStatus = 'Parsing CSV...';
                         this.bulkResults = [];
-
                         try {
-                            // Try to detect if first line is header (contains product_name)
                             const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
                             let items = [];
                             if (lines[0] && lines[0].toLowerCase().includes('product_name')) {
                                 items = this.parseCSV(text);
                             } else {
-                                // No header: assume columns in order
                                 items = lines.map(line => {
                                     const c = line.split(',').map(s => s.trim());
                                     return {
@@ -345,10 +372,7 @@
                                     };
                                 });
                             }
-
                             this.bulkStatus = `Posting ${items.length} items...`;
-
-                            // Post sequentially to avoid overloading server; collect results
                             for (let i = 0; i < items.length; i++) {
                                 const it = items[i];
                                 try {
@@ -359,12 +383,10 @@
                                         expiration_date: it.expiration_date,
                                         supplier_info: it.supplier_info
                                     };
-
                                     const resp = await apiFetch('https://saas-tool-mf02.onrender.com/product_view/product/post_product', {
                                         method: 'POST',
                                         body: JSON.stringify(payload)
                                     });
-
                                     const data = await resp.json().catch(() => ({}));
                                     if (!resp.ok) {
                                         this.bulkResults.push({ ...it, ok: false, message: data.message || `status ${resp.status}` });
@@ -376,23 +398,25 @@
                                 }
                                 this.bulkStatus = `Posted ${i + 1}/${items.length}`;
                             }
-
                             this.bulkStatus = `Done: ${this.bulkResults.filter(r => r.ok).length} succeeded, ${this.bulkResults.filter(r => !r.ok).length} failed.`;
-                            // refresh analytics
                             this.loadAnalytics();
                         } finally {
                             this.bulkPosting = false;
                         }
                     },
                     signout() {
-                        try { sessionStorage.removeItem('nkwabiz_token'); sessionStorage.removeItem('nkwabiz_business'); } catch (e) { }
+                        try {
+                            sessionStorage.removeItem('nkwabiz_token');
+                            sessionStorage.removeItem('nkwabiz_business');
+                        } catch (e) {
+                            console.warn('Could not clear sessionStorage', e);
+                        }
                         window.location.href = 'index.html';
                     }
                 }
             }).mount('#app');
         } catch (e) {
             console.error('Dashboard init error', e);
-            // show error on page for debugging
             try {
                 const node = document.createElement('pre');
                 node.id = 'dashboard-error';
@@ -402,7 +426,7 @@
                 node.style.margin = '20px';
                 node.textContent = String(e && e.stack ? e.stack : e);
                 document.body.insertBefore(node, document.body.firstChild);
-            } catch (inner) { /* ignore */ }
+            } catch (inner) { }
         }
     </script>
 </body>
