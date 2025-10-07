@@ -504,7 +504,7 @@
                     <li><a href="#features" @click="closeMobileMenu">Features</a></li>
                     <li><a href="pricing.html">Pricing</a></li>
                     <li><a href="#about" @click="closeMobileMenu">About</a></li>
-                    <li><a href="#" @click="handleSignup">Get Started</a></li>
+                    <li><a href="auth.html">Get Started</a></li>
                 </ul>
             </div>
         </header>
@@ -518,7 +518,7 @@
                     <h1>Moving businesses from paper to digital</h1>
                     <p>Leave behind manual inventory tracking, handwritten records, and spreadsheet chaos. Transform
                         your business with digital tools designed for modern operations and real growth.</p>
-                    <a href="#" class="signup-btn" @click="handleSignup">Get started free</a>
+                    <a href="auth.html" class="signup-btn">Get started free</a>
                 </section>
 
                 <!-- Features Section -->
@@ -632,11 +632,6 @@
                 }
             },
             methods: {
-                handleSignup() {
-                    // Replace with your actual signup logic
-                    console.log('Redirecting to signup...');
-                    // window.location.href = '/signup';
-                },
                 toggleMobileMenu() {
                     this.mobileMenuOpen = !this.mobileMenuOpen;
                 },
