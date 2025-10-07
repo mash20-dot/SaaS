@@ -679,7 +679,7 @@
                         this.loading = true;
                         this.errorMessage = '';
                         try {
-                            const resp = await apiFetch('https://saas-tool-mf02.onrender.com/dashboard/board', { method: 'GET' });
+                            const resp = await apiFetch('https://saas-tool-mf02.onrender.com/dashboard/board', { method: 'GET', timeoutMs: 15000 });
                             if (!resp.ok) {
                                 let body = '';
                                 try { body = await resp.text(); } catch (e) { }
@@ -699,7 +699,11 @@
                             }
                         } catch (err) {
                             console.error('loadAnalytics error', err);
-                            this.errorMessage = 'Network error while loading analytics.';
+                            if (err && err.timedout) {
+                                this.errorMessage = 'Request timed out while loading analytics. Please check your network and try again.';
+                            } else {
+                                this.errorMessage = 'Network error while loading analytics.';
+                            }
                         } finally {
                             this.loading = false;
                         }

@@ -17,6 +17,25 @@ window.apiFetch = async function (url, opts = {}) {
     }
 
     const cfg = Object.assign({}, opts, { headers });
-    const resp = await fetch(fullUrl, cfg);
-    return resp;
+
+    // add a default timeout (15s) to avoid hanging requests
+    const timeoutMs = (opts && opts.timeoutMs) ? opts.timeoutMs : 15000;
+    const controller = new AbortController();
+    cfg.signal = controller.signal;
+
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const resp = await fetch(fullUrl, cfg);
+        return resp;
+    } catch (err) {
+        // if aborted, make a synthetic Response-like error object for callers
+        if (err && err.name === 'AbortError') {
+            const e = new Error('Request timed out');
+            e.timedout = true;
+            throw e;
+        }
+        throw err;
+    } finally {
+        clearTimeout(timer);
+    }
 };
