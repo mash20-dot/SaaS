@@ -23,11 +23,12 @@
         }
 
         .card {
-            background: white;
-            padding: 28px;
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06)
+            background: transparent;
+            padding: 18px 0;
+            border-radius: 0;
+            box-shadow: none;
         }
+
 
         h1 {
             font-size: 24px;
@@ -83,6 +84,61 @@
             <div class="card" style="margin-top:16px">
                 <h2>Product analytics</h2>
 
+                <div style="margin-top:12px; display:flex; gap:8px; align-items:center">
+                    <button class="btn" @click="showPostForm = !showPostForm">{{ showPostForm ? 'Cancel' : 'Post
+                        product' }}</button>
+                    <div class="muted">You can post a new product to your inventory.</div>
+                </div>
+
+                <div v-if="showPostForm" style="margin-top:12px; padding:8px 0">
+                    <form @submit.prevent="postProduct" style="display:grid; gap:8px; max-width:520px">
+                        <input v-model="newProduct.product_name" placeholder="Product name" required class="form-input">
+                        <input v-model.number="newProduct.selling_price" placeholder="Selling price" required
+                            class="form-input" type="number" step="0.01">
+                        <input v-model.number="newProduct.initial_stock" placeholder="Initial stock" required
+                            class="form-input" type="number">
+                        <input v-model="newProduct.expiration_date" placeholder="Expiration date (YYYY-MM-DD)"
+                            class="form-input" type="date">
+                        <input v-model="newProduct.supplier_info" placeholder="Supplier info" class="form-input">
+
+                        <div style="display:flex; gap:8px; margin-top:6px">
+                            <button class="btn" :disabled="posting">{{ posting ? 'Posting…' : 'Submit product'
+                                }}</button>
+                            <div v-if="postMessage" :class="['status', postMessageType]">{{ postMessage }}</div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Bulk upload -->
+                <div style="margin-top:12px">
+                    <button class="btn" @click="showBulk = !showBulk">{{ showBulk ? 'Hide bulk uploader' : 'Post many
+                        products' }}</button>
+                </div>
+
+                <div v-if="showBulk" style="margin-top:12px; max-width:720px">
+                    <p class="muted">Upload CSV with header row
+                        (product_name,selling_price,initial_stock,expiration_date,supplier_info) or paste lines.</p>
+                    <input type="file" accept=".csv,text/csv" @change="onFileChange">
+                    <textarea v-model="bulkText" rows="6"
+                        placeholder="product_name,selling_price,initial_stock,expiration_date,supplier_info\n..."
+                        style="width:100%; margin-top:8px; padding:8px"></textarea>
+
+                    <div style="display:flex; gap:8px; margin-top:8px; align-items:center">
+                        <button class="btn" @click="startBulk" :disabled="bulkPosting">{{ bulkPosting ? 'Posting…' :
+                            'Start bulk post' }}</button>
+                        <div class="muted">{{ bulkStatus }}</div>
+                    </div>
+
+                    <div v-if="bulkResults.length" style="margin-top:12px">
+                        <div v-for="(r, i) in bulkResults" :key="i" style="padding:6px 0; border-bottom:1px solid #eee">
+                            <div><strong>{{ r.product_name || '(no name)' }}</strong> — <span
+                                    :style="{ color: r.ok ? '#155724' : '#721c24' }">{{ r.ok ? 'OK' : 'ERROR' }}</span>
+                            </div>
+                            <div v-if="r.message" class="muted">{{ r.message }}</div>
+                        </div>
+                    </div>
+                </div>
+
                 <div v-if="loading" style="padding:18px">Loading data…</div>
 
                 <div v-if="errorMessage" :class="['status','error']" style="margin-top:12px">{{ errorMessage }}</div>
@@ -92,14 +148,16 @@
 
                 <div v-if="products.length > 0" style="margin-top:12px">
                     <div v-for="(p, idx) in products" :key="idx"
-                        style="margin-bottom:12px; padding:12px; border-radius:8px; background:#fff; border:1px solid #eee">
-                        <strong>{{ p.product_name || 'Unnamed product' }}</strong>
-                        <div style="display:flex; gap:12px; margin-top:8px; flex-wrap:wrap">
-                            <div class="muted">Selling price: <strong>¢{{ formatNumber(p.selling_price) }}</strong>
-                            </div>
-                            <div class="muted">Initial stock: <strong>{{ p.initial_stock }}</strong></div>
-                            <div class="muted">Remaining stock: <strong>{{ p.remaining_stock }}</strong></div>
-                            <div class="muted">Expiration: <strong>{{ formatDate(p.expiration_date) }}</strong></div>
+                        style="margin-bottom:8px; padding:6px 0; border-bottom:1px solid #eee">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap">
+                            <div style="font-weight:700">{{ p.product_name || 'Unnamed product' }}</div>
+                            <div class="muted">Selling: <strong>¢{{ formatNumber(p.selling_price) }}</strong></div>
+                        </div>
+                        <div style="display:flex; gap:18px; margin-top:6px; color:#555; font-size:14px; flex-wrap:wrap">
+                            <div>Initial: <strong>{{ p.initial_stock }}</strong></div>
+                            <div>Remaining: <strong>{{ p.remaining_stock }}</strong></div>
+                            <div>Exp: <strong>{{ formatDate(p.expiration_date) }}</strong></div>
                         </div>
                     </div>
                 </div>
@@ -117,7 +175,26 @@
                     subtitle: "This is your dashboard. We'll build features here next.",
                     loading: false,
                     errorMessage: '',
-                    products: []
+                    products: [],
+                    // post product UI state
+                    showPostForm: false,
+                    posting: false,
+                    postMessage: '',
+                    postMessageType: '',
+                    newProduct: {
+                        product_name: '',
+                        selling_price: '',
+                        initial_stock: '',
+                        expiration_date: '',
+                        supplier_info: ''
+                    }
+                    ,
+                    // bulk upload state
+                    showBulk: false,
+                    bulkText: '',
+                    bulkPosting: false,
+                    bulkStatus: '',
+                    bulkResults: []
                 }
             },
             mounted() {
@@ -174,6 +251,136 @@
                         this.errorMessage = 'Network error while loading analytics.';
                     } finally {
                         this.loading = false;
+                    }
+                },
+                async postProduct() {
+                    this.posting = true;
+                    this.postMessage = '';
+                    this.postMessageType = '';
+                    try {
+                        const payload = {
+                            product_name: this.newProduct.product_name,
+                            selling_price: this.newProduct.selling_price,
+                            initial_stock: this.newProduct.initial_stock,
+                            expiration_date: this.newProduct.expiration_date,
+                            supplier_info: this.newProduct.supplier_info
+                        };
+
+                        const resp = await apiFetch('https://saas-tool-mf02.onrender.com/product_view/product/post_product', {
+                            method: 'POST',
+                            body: JSON.stringify(payload)
+                        });
+
+                        const data = await resp.json().catch(() => ({}));
+                        if (!resp.ok) {
+                            const msg = data.message || `Failed to post product (status ${resp.status})`;
+                            this.postMessage = msg;
+                            this.postMessageType = 'error';
+                            return;
+                        }
+
+                        this.postMessage = data.message || 'Product posted successfully.';
+                        this.postMessageType = 'success';
+                        // clear form
+                        this.newProduct = { product_name: '', selling_price: '', initial_stock: '', expiration_date: '', supplier_info: '' };
+                        this.showPostForm = false;
+                        // refresh analytics
+                        this.loadAnalytics();
+                    } catch (err) {
+                        console.error('postProduct error', err);
+                        this.postMessage = 'Network error while posting product.';
+                        this.postMessageType = 'error';
+                    } finally {
+                        this.posting = false;
+                    }
+                },
+                onFileChange(e) {
+                    const f = e.target.files && e.target.files[0];
+                    if (!f) return;
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        this.bulkText = String(ev.target.result || '');
+                    };
+                    reader.readAsText(f);
+                },
+
+                parseCSV(text) {
+                    // Very small CSV parser that supports header row
+                    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+                    if (!lines.length) return [];
+                    const header = lines[0].split(',').map(h => h.trim());
+                    const rows = lines.slice(1).map(line => line.split(',').map(cell => cell.trim()));
+                    return rows.map(cells => {
+                        const obj = {};
+                        for (let i = 0; i < header.length; i++) obj[header[i]] = cells[i] || '';
+                        return obj;
+                    });
+                },
+
+                async startBulk() {
+                    // Prepare list of products
+                    const text = this.bulkText.trim();
+                    if (!text) { this.bulkStatus = 'No CSV content'; return; }
+                    this.bulkPosting = true;
+                    this.bulkStatus = 'Parsing CSV...';
+                    this.bulkResults = [];
+
+                    try {
+                        // Try to detect if first line is header (contains product_name)
+                        const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+                        let items = [];
+                        if (lines[0] && lines[0].toLowerCase().includes('product_name')) {
+                            items = this.parseCSV(text);
+                        } else {
+                            // No header: assume columns in order
+                            items = lines.map(line => {
+                                const c = line.split(',').map(s => s.trim());
+                                return {
+                                    product_name: c[0] || '',
+                                    selling_price: c[1] || '',
+                                    initial_stock: c[2] || '',
+                                    expiration_date: c[3] || '',
+                                    supplier_info: c[4] || ''
+                                };
+                            });
+                        }
+
+                        this.bulkStatus = `Posting ${items.length} items...`;
+
+                        // Post sequentially to avoid overloading server; collect results
+                        for (let i = 0; i < items.length; i++) {
+                            const it = items[i];
+                            try {
+                                const payload = {
+                                    product_name: it.product_name,
+                                    selling_price: it.selling_price,
+                                    initial_stock: it.initial_stock,
+                                    expiration_date: it.expiration_date,
+                                    supplier_info: it.supplier_info
+                                };
+
+                                const resp = await apiFetch('https://saas-tool-mf02.onrender.com/product_view/product/post_product', {
+                                    method: 'POST',
+                                    body: JSON.stringify(payload)
+                                });
+
+                                const data = await resp.json().catch(() => ({}));
+                                if (!resp.ok) {
+                                    this.bulkResults.push({ ...it, ok: false, message: data.message || `status ${resp.status}` });
+                                } else {
+                                    this.bulkResults.push({ ...it, ok: true, message: data.message || 'OK' });
+                                }
+                            } catch (err) {
+                                this.bulkResults.push({ ...it, ok: false, message: 'Network error' });
+                            }
+                            this.bulkStatus = `Posted ${i + 1}/${items.length}`;
+                        }
+
+                        this.bulkStatus = `Done: ${this.bulkResults.filter(r => r.ok).length} succeeded, ${this.bulkResults.filter(r => !r.ok).length} failed.`;
+                        // refresh analytics
+                        this.loadAnalytics();
+                    } finally {
+                        this.bulkPosting = false;
                     }
                 },
                 signout() {
