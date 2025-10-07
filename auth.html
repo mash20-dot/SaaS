@@ -426,7 +426,18 @@
                             body: JSON.stringify(payload)
                         });
 
-                        const data = await resp.json().catch(() => ({}));
+                        // Try to parse json, but fall back to text for unexpected server errors
+                        let data = {};
+                        try {
+                            data = await resp.json();
+                        } catch (e) {
+                            // non-json responses (e.g., full HTML stack traces)
+                            try {
+                                data = { message: await resp.text() };
+                            } catch (t) {
+                                data = { message: '' };
+                            }
+                        }
 
                         if (resp.ok) {
                             // Backend indicates success. Show inline message then redirect to login.
@@ -437,10 +448,24 @@
                                 window.location.href = 'auth.html?action=login';
                             }, 900);
                         } else {
-                            // Show backend-provided message inline
-                            const msg = data.message || `Signup failed (status ${resp.status})`;
-                            this.statusType = 'error';
-                            this.statusMessage = msg;
+                            // Normalize the server message for display
+                            const rawMsg = (data && data.message) ? String(data.message) : '';
+
+                            // Detect common duplicate-entry MySQL error messages (SQLAlchemy passes through raw DB errors in some setups)
+                            const isDuplicateBusiness = /Duplicate entry .* for key 'user\.business_name'|1062|duplicate entry/i.test(rawMsg);
+
+                            if (isDuplicateBusiness) {
+                                this.statusType = 'error';
+                                this.statusMessage = 'That business name is already taken. Please choose a different business name.';
+                            } else if (rawMsg) {
+                                // Show backend-provided message but keep it concise
+                                this.statusType = 'error';
+                                // If the backend message is very long (like a traceback), show a short generic message instead
+                                this.statusMessage = rawMsg.length > 240 ? 'Signup failed — server returned an unexpected error. Please try again or contact support.' : rawMsg;
+                            } else {
+                                this.statusType = 'error';
+                                this.statusMessage = `Signup failed (status ${resp.status}). Please try again.`;
+                            }
                         }
                     } catch (err) {
                         console.error('Signup error:', err);
