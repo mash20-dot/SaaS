@@ -364,10 +364,12 @@
 
                     // Simulate API call
                     setTimeout(() => {
-                        alert('Account created successfully! Redirecting to dashboard...');
-                        // window.location.href = '/dashboard';
+                        // NOTE: backend integration expected — do not persist to localStorage here.
+                        // Keep simulated API response and redirect to pricing as the next step.
+                        alert('Account created successfully! Redirecting to pricing...');
+                        window.location.href = 'pricing.html';
                         this.submitting = false;
-                    }, 1500);
+                    }, 800);
                 },
 
                 async handleLogin() {
