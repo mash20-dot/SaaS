@@ -418,20 +418,20 @@
                         <tbody>
                             <tr v-for="(p, idx) in products" :key="getProductId(p) || idx">
                                 <td>
-                                    <template v-if="editRowId === getProductId(p)">
+                                    <template v-if="editRowId === getProductId(p) && editProduct">
                                         <input class="form-input" v-model="editProduct.product_name">
                                     </template>
                                     <template v-else>{{ p.product_name || 'Unnamed product' }}</template>
                                 </td>
                                 <td>
-                                    <template v-if="editRowId === getProductId(p)">
+                                    <template v-if="editRowId === getProductId(p) && editProduct">
                                         <input class="form-input" v-model.number="editProduct.selling_price"
                                             type="number" step="0.01">
                                     </template>
                                     <template v-else>¢{{ formatNumber(p.selling_price) }}</template>
                                 </td>
                                 <td>
-                                    <template v-if="editRowId === getProductId(p)">
+                                    <template v-if="editRowId === getProductId(p) && editProduct">
                                         <input class="form-input" v-model.number="editProduct.initial_stock"
                                             type="number">
                                     </template>
@@ -439,19 +439,19 @@
                                 </td>
                                 <td>{{ p.remaining_stock }}</td>
                                 <td>
-                                    <template v-if="editRowId === getProductId(p)">
+                                    <template v-if="editRowId === getProductId(p) && editProduct">
                                         <input class="form-input" v-model="editProduct.expiration_date" type="date">
                                     </template>
                                     <template v-else>{{ formatDate(p.expiration_date) }}</template>
                                 </td>
                                 <td>
-                                    <template v-if="editRowId === getProductId(p)">
+                                    <template v-if="editRowId === getProductId(p) && editProduct">
                                         <input class="form-input" v-model="editProduct.supplier_info">
                                     </template>
                                     <template v-else>{{ p.supplier_info || '-' }}</template>
                                 </td>
                                 <td style="text-align:center">
-                                    <div v-if="editRowId === getProductId(p)"
+                                    <div v-if="editRowId === getProductId(p) && editProduct"
                                         style="display:flex; gap:8px; justify-content:center; flex-direction:column; align-items:center">
                                         <div style="display:flex; gap:8px;">
                                             <button class="btn" @click="saveEdit(getProductId(p))"
@@ -614,8 +614,7 @@
                         this.editMessage = '';
                         this.editMessageType = '';
 
-                        this.editRowId = this.getProductId(p);
-                        this.editIndex = (typeof idx === 'number') ? idx : this.products.findIndex(x => this.getProductId(x) === this.getProductId(p));
+                        // assign editProduct first to avoid template reading null during render
                         this.editProduct = {
                             product_name: p.product_name || '',
                             selling_price: p.selling_price || 0,
@@ -623,6 +622,9 @@
                             expiration_date: p.expiration_date || '',
                             supplier_info: p.supplier_info || ''
                         };
+
+                        this.editRowId = this.getProductId(p);
+                        this.editIndex = (typeof idx === 'number') ? idx : this.products.findIndex(x => this.getProductId(x) === this.getProductId(p));
                     },
                     cancelEdit() {
                         this.editRowId = null;
