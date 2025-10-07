@@ -605,6 +605,14 @@
                     },
                     async saveEdit(productId) {
                         if (!this.editProduct) return;
+                        // ensure we have the correct id: prefer explicit arg, otherwise use the active editRowId
+                        const idToUse = productId || this.editRowId;
+                        if (!idToUse) {
+                            this.editMessage = 'No product selected for update.';
+                            this.editMessageType = 'error';
+                            return;
+                        }
+                        productId = idToUse;
                         this.editing = true;
                         try {
                             const payload = {
