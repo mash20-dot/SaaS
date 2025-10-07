@@ -263,12 +263,13 @@
                         const dt = new Date(d);
                         if (isNaN(dt)) return d;
                         return dt.toLocaleDateString();
+
                     },
                     async loadAnalytics() {
                         this.loading = true;
                         this.errorMessage = '';
                         try {
-                            const resp = await apiFetch('https://saas-tool-mf02.onrender.com/dashboard/dash', { method: 'GET' });
+                            const resp = await apiFetch('https://saas-tool-mf02.onrender.com/dashboard/board', { method: 'GET' });
                             if (!resp.ok) {
                                 let body = '';
                                 try { body = await resp.text(); } catch (e) { }
