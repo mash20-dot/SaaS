@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Dashboard - NkwaBiz</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f7f7f8;
+            color: #222;
+            margin: 0
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px
+        }
+
+        .card {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06)
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 8px
+        }
+
+        p {
+            color: #555
+        }
+
+        .btn {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600
+        }
+
+        .muted {
+            color: #777
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="topbar">
+            <div>
+                <strong>NkwaBiz</strong>
+            </div>
+            <div id="user-area" class="muted">Not signed in</div>
+        </div>
+
+        <div class="card">
+            <h1 id="welcome">Welcome</h1>
+            <p id="subtitle">This is your dashboard. We'll build features here next.</p>
+
+            <div style="margin-top:18px">
+                <button id="signout" class="btn">Sign out</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Backend will handle auth; for now show generic dashboard placeholder.
+        document.getElementById('welcome').textContent = 'Welcome';
+        document.getElementById('subtitle').textContent = "This is your dashboard. We'll build features here next.";
+        document.getElementById('user-area').textContent = 'Guest';
+
+        document.getElementById('signout').addEventListener('click', () => {
+            // Sign out should be handled by backend; here we simply redirect to home.
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+
+</html>
