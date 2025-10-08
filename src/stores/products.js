@@ -16,12 +16,17 @@ export const useProductsStore = defineStore('products', {
         },
         async addProduct(product) {
             try {
-                const res = await api.post('/product_view/product/post_product')
+                const res = await api.post('/product_view/product/post_product', product, {
+                    headers: { 'Content-Type': 'application/json' },
+                })
                 this.products.push(res.data)
             } catch (error) {
                 throw error
             }
         },
+
+
+
         async editProduct(id, product) {
             try {
                 const res = await api.put(`/product/${id}`, product)
