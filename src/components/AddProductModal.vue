@@ -5,7 +5,7 @@
       <form @submit.prevent="onSubmit" class="space-y-4">
         <div>
           <label for="name" class="block mb-1 font-medium">Product Name</label>
-          <input v-model="form.name" id="product_name" type="text" required class="w-full border border-gray-300 rounded px-3 py-2" />
+          <input v-model="form.product_name" id="product_name" type="text" required class="w-full border border-gray-300 rounded px-3 py-2" />
         </div>
        <div>
         <label for="expiration_date" class="block mb-1 font-medium">Expiration Date</label>
@@ -19,11 +19,11 @@
 
         <div>
           <label for="price" class="block mb-1 font-medium">Selling Price</label>
-          <input v-model.number="form.price" id="selling_price" type="number" min="0" step="0.01" required class="w-full border border-gray-300 rounded px-3 py-2" />
+          <input v-model.number="form.selling_price" id="selling_price" type="number" min="0" step="0.01" required class="w-full border border-gray-300 rounded px-3 py-2" />
         </div>
         <div>
           <label for="stock" class="block mb-1 font-medium">Initial Stock</label>
-          <input v-model.number="form.stock" id="initial_stock" type="number" min="0" required class="w-full border border-gray-300 rounded px-3 py-2" />
+          <input v-model.number="form.initial_stock" id="initial_stock" type="number" min="0" required class="w-full border border-gray-300 rounded px-3 py-2" />
         </div>
         <div class="flex justify-end space-x-3">
           <button type="button" @click="$emit('close')" class="px-4 py-2 rounded border border-gray-400 hover:bg-gray-100">Cancel</button>
