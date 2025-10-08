@@ -36,7 +36,7 @@ export const useProductsStore = defineStore('products', {
 
         async editProduct(id, product) {
             try {
-                const res = await api.put(`/product/${id}`, product)
+                const res = await api.put(`/product_view/product/${product_id}`, product)
                 const index = this.products.findIndex(p => p.id === id)
                 if (index !== -1) {
                     this.products[index] = res.data
