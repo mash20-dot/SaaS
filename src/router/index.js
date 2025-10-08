@@ -12,7 +12,7 @@ import Pricing from '../pages/Pricing.vue'
 import Landing from '../pages/Landing.vue'
 
 const routes = [
-    { path: '/', redirect: '/landing' }, // Redirect root to landing page (lowercase)
+    { path: '/', redirect: '/landing' },
     { path: '/login', component: Login, meta: { guest: true } },
     { path: '/register', component: Register, meta: { guest: true } },
     { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true } },
