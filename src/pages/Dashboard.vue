@@ -55,46 +55,140 @@
         <table class="min-w-full bg-white border border-gray-300 rounded shadow">
           <thead class="bg-gray-200">
             <tr>
-              <th class="py-2 px-4 border-b border-gray-300 text-left flex items-center gap-1">
-                Product Name
-                <button @click="editProductColumn('product_name')" title="Edit Product Name" class="text-gray-500 hover:text-primary">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
-                  </svg>
-                </button>
-              </th>
-              <th class="py-2 px-4 border-b border-gray-300 text-left flex items-center gap-1">
-                Selling Price
-                <button @click="editProductColumn('selling_price')" title="Edit Selling Price" class="text-gray-500 hover:text-primary">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
-                  </svg>
-                </button>
-              </th>
-              <th class="py-2 px-4 border-b border-gray-300 text-left flex items-center gap-1">
-                Initial Stock
-                <button @click="editProductColumn('initial_stock')" title="Edit Initial Stock" class="text-gray-500 hover:text-primary">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
-                  </svg>
-                </button>
-              </th>
-              <th class="py-2 px-4 border-b border-gray-300 text-left flex items-center gap-1">
-                Expiration Date
-                <button @click="editProductColumn('expiration_date')" title="Edit Expiration Date" class="text-gray-500 hover:text-primary">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
-                  </svg>
-                </button>
-              </th>
+              <th class="py-2 px-4 border-b border-gray-300 text-left">Product Name</th>
+              <th class="py-2 px-4 border-b border-gray-300 text-left">Selling Price</th>
+              <th class="py-2 px-4 border-b border-gray-300 text-left">Initial Stock</th>
+              <th class="py-2 px-4 border-b border-gray-300 text-left">Expiration Date</th>
+              <th class="py-2 px-4 border-b border-gray-300 text-center w-20">Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="product in productsStore.products" :key="product.id" class="hover:bg-gray-50">
-              <td class="py-2 px-4 border-b border-gray-300">{{ product.product_name }}</td>
-              <td class="py-2 px-4 border-b border-gray-300">{{ formatPrice(product.selling_price) }}</td>
-              <td class="py-2 px-4 border-b border-gray-300">{{ product.initial_stock }}</td>
-              <td class="py-2 px-4 border-b border-gray-300">{{ formatDate(product.expiration_date) }}</td>
+              <!-- Product Name -->
+              <td class="py-2 px-4 border-b border-gray-300">
+                <template v-if="editRowId === product.id && editField === 'product_name'">
+                  <input
+                    v-model="editedValue"
+                    type="text"
+                    class="border rounded px-2 py-1 w-full"
+                    @keyup.enter="saveEdit(product.id, 'product_name')"
+                    @keyup.esc="cancelEdit"
+                    autofocus
+                  />
+                </template>
+                <template v-else>{{ product.product_name }}</template>
+              </td>
+
+              <!-- Selling Price -->
+              <td class="py-2 px-4 border-b border-gray-300">
+                <template v-if="editRowId === product.id && editField === 'selling_price'">
+                  <input
+                    v-model.number="editedValue"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    class="border rounded px-2 py-1 w-full"
+                    @keyup.enter="saveEdit(product.id, 'selling_price')"
+                    @keyup.esc="cancelEdit"
+                    autofocus
+                  />
+                </template>
+                <template v-else>{{ formatPrice(product.selling_price) }}</template>
+              </td>
+
+              <!-- Initial Stock -->
+              <td class="py-2 px-4 border-b border-gray-300">
+                <template v-if="editRowId === product.id && editField === 'initial_stock'">
+                  <input
+                    v-model.number="editedValue"
+                    type="number"
+                    min="0"
+                    step="1"
+                    class="border rounded px-2 py-1 w-full"
+                    @keyup.enter="saveEdit(product.id, 'initial_stock')"
+                    @keyup.esc="cancelEdit"
+                    autofocus
+                  />
+                </template>
+                <template v-else>{{ product.initial_stock }}</template>
+              </td>
+
+              <!-- Expiration Date -->
+              <td class="py-2 px-4 border-b border-gray-300">
+                <template v-if="editRowId === product.id && editField === 'expiration_date'">
+                  <input
+                    v-model="editedValue"
+                    type="date"
+                    class="border rounded px-2 py-1 w-full"
+                    @keyup.enter="saveEdit(product.id, 'expiration_date')"
+                    @keyup.esc="cancelEdit"
+                    autofocus
+                  />
+                </template>
+                <template v-else>{{ formatDate(product.expiration_date) }}</template>
+              </td>
+
+              <!-- Actions: Pencil or Save/Cancel -->
+              <td class="py-2 px-4 border-b border-gray-300 text-center">
+                <template v-if="editRowId === product.id">
+                  <button
+                    @click="saveEdit(product.id, editField)"
+                    class="text-green-600 hover:text-green-800 mr-2"
+                    title="Save"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="inline h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </button>
+                  <button
+                    @click="cancelEdit"
+                    class="text-red-600 hover:text-red-800"
+                    title="Cancel"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="inline h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </template>
+                <template v-else>
+                  <button
+                    @click="startEdit(product.id, 'product_name', product.product_name)"
+                    class="text-gray-500 hover:text-primary mr-1"
+                    title="Edit Product Name"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
+                    </svg>
+                  </button>
+                  <button
+                    @click="startEdit(product.id, 'selling_price', product.selling_price)"
+                    class="text-gray-500 hover:text-primary mr-1"
+                    title="Edit Selling Price"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
+                    </svg>
+                  </button>
+                  <button
+                    @click="startEdit(product.id, 'initial_stock', product.initial_stock)"
+                    class="text-gray-500 hover:text-primary mr-1"
+                    title="Edit Initial Stock"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
+                    </svg>
+                  </button>
+                  <button
+                    @click="startEdit(product.id, 'expiration_date', product.expiration_date)"
+                    class="text-gray-500 hover:text-primary"
+                    title="Edit Expiration Date"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
+                    </svg>
+                  </button>
+                </template>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -104,7 +198,7 @@
 </template>
 
 <script setup>
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import MainLayout from '../layouts/MainLayout.vue'
 import { useProductsStore } from '../stores/products'
@@ -128,6 +222,7 @@ function formatPrice(price) {
 }
 
 function formatDate(dateStr) {
+  if (!dateStr) return ''
   const date = new Date(dateStr)
   return date.toLocaleDateString()
 }
@@ -136,11 +231,46 @@ function isActive(path) {
   return route.path === path
 }
 
-// Handler for edit icon click, pass the column key
-function editProductColumn(column) {
-  // TODO: Hook this up to your backend edit route or open modal for editing
-  console.log('Edit clicked for column:', column)
-  // Example: open edit modal with specific field or route to edit page
+// Editing state
+const editRowId = ref(null)
+const editField = ref(null)
+const editedValue = ref(null)
+
+function startEdit(rowId, field, currentValue) {
+  editRowId.value = rowId
+  editField.value = field
+  // For expiration_date, convert to yyyy-MM-dd for input[type=date]
+  if (field === 'expiration_date' && currentValue) {
+    const d = new Date(currentValue)
+    editedValue.value = d.toISOString().slice(0, 10)
+  } else {
+    editedValue.value = currentValue
+  }
+}
+
+function cancelEdit() {
+  editRowId.value = null
+  editField.value = null
+  editedValue.value = null
+}
+
+function saveEdit(rowId, field) {
+  // TODO: Hook up with backend API to save the updated value
+  console.log(`Save edit for row ${rowId}, field ${field}, value:`, editedValue.value)
+
+  // Update productsStore locally for instant UI feedback (optional)
+  const productIndex = productsStore.products.findIndex(p => p.id === rowId)
+  if (productIndex !== -1) {
+    if (field === 'expiration_date') {
+      productsStore.products[productIndex][field] = editedValue.value
+    } else if (field === 'selling_price' || field === 'initial_stock') {
+      productsStore.products[productIndex][field] = Number(editedValue.value)
+    } else {
+      productsStore.products[productIndex][field] = editedValue.value
+    }
+  }
+
+  cancelEdit()
 }
 </script>
 
@@ -155,5 +285,12 @@ button {
   border: none;
   cursor: pointer;
   padding: 0;
+}
+button:focus {
+  outline: none;
+}
+input:focus {
+  outline: 2px solid #22c55e; /* Tailwind green-500 */
+  outline-offset: 2px;
 }
 </style>
