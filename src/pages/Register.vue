@@ -29,7 +29,7 @@
 
       <div class="mb-4">
         <label class="block mb-1" for="businessName">Business Name</label>
-        <input v-model="form.businessName" id="businessName" type="text" required class="w-full border border-gray-300 rounded px-3 py-2" />
+        <input v-model="form.business_name" id="business_name" type="text" required class="w-full border border-gray-300 rounded px-3 py-2" />
       </div>
 
       <div class="mb-6">
