@@ -55,10 +55,38 @@
         <table class="min-w-full bg-white border border-gray-300 rounded shadow">
           <thead class="bg-gray-200">
             <tr>
-              <th class="py-2 px-4 border-b border-gray-300 text-left">Product Name</th>
-              <th class="py-2 px-4 border-b border-gray-300 text-left">Selling Price</th>
-              <th class="py-2 px-4 border-b border-gray-300 text-left">Initial Stock</th>
-              <th class="py-2 px-4 border-b border-gray-300 text-left">Expiration Date</th>
+              <th class="py-2 px-4 border-b border-gray-300 text-left flex items-center gap-1">
+                Product Name
+                <button @click="editProductColumn('product_name')" title="Edit Product Name" class="text-gray-500 hover:text-primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
+                  </svg>
+                </button>
+              </th>
+              <th class="py-2 px-4 border-b border-gray-300 text-left flex items-center gap-1">
+                Selling Price
+                <button @click="editProductColumn('selling_price')" title="Edit Selling Price" class="text-gray-500 hover:text-primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
+                  </svg>
+                </button>
+              </th>
+              <th class="py-2 px-4 border-b border-gray-300 text-left flex items-center gap-1">
+                Initial Stock
+                <button @click="editProductColumn('initial_stock')" title="Edit Initial Stock" class="text-gray-500 hover:text-primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
+                  </svg>
+                </button>
+              </th>
+              <th class="py-2 px-4 border-b border-gray-300 text-left flex items-center gap-1">
+                Expiration Date
+                <button @click="editProductColumn('expiration_date')" title="Edit Expiration Date" class="text-gray-500 hover:text-primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
+                  </svg>
+                </button>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -107,6 +135,13 @@ function formatDate(dateStr) {
 function isActive(path) {
   return route.path === path
 }
+
+// Handler for edit icon click, pass the column key
+function editProductColumn(column) {
+  // TODO: Hook this up to your backend edit route or open modal for editing
+  console.log('Edit clicked for column:', column)
+  // Example: open edit modal with specific field or route to edit page
+}
 </script>
 
 <style scoped>
@@ -114,5 +149,11 @@ function isActive(path) {
   @apply px-4 py-2 rounded border border-primary text-primary hover:bg-primary hover:text-white transition;
   text-decoration: none;
   font-weight: 600;
+}
+button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
 }
 </style>
