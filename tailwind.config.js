@@ -12,7 +12,7 @@ export default {
                     100: '#dfffcc',
                     200: '#bfff99',
                     300: '#9fff66',
-                    400: '#7fff33',
+                    400: '#367412ff',
                     500: '#39FF14', // Exact neon green from image
                     600: '#2ecc10',
                     700: '#23990c',
