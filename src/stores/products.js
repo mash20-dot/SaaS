@@ -21,6 +21,7 @@ export const useProductsStore = defineStore('products', {
                 })
                 this.products.push(res.data)
             } catch (error) {
+                console.error('Error adding product:', error)
                 throw error
             }
         },
