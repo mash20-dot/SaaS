@@ -44,7 +44,7 @@ const productsStore = useProductsStore()
 const form = reactive({
   product_name: '',
   description: '',
-  price: 0,
+  selling_price: 0,
   stock: 0,
   lowStockThreshold: 0,
 })

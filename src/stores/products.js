@@ -14,14 +14,22 @@ export const useProductsStore = defineStore('products', {
                 throw error
             }
         },
+
         async addProduct(product) {
             try {
-                const res = await api.post('/product_view/product/post_product', product, {
-                    headers: { 'Content-Type': 'application/json' },
-                })
+                const payload = {
+                    product_name: product.product_name,
+                    selling_price: product.selling_price,
+                    initial_stock: product.initial_stock,
+                    expiration_date: product.expiration_date,
+                    supplier_info: product.description
+                }
+
+                const res = await api.post('/product_view/product/post_product', payload)
                 this.products.push(res.data)
+                return res.data
             } catch (error) {
-                console.error('Error adding product:', error)
+                console.error("Error adding product:", error)
                 throw error
             }
         },
