@@ -58,6 +58,7 @@
               <th class="py-2 px-4 border-b border-gray-300 text-left">Product Name</th>
               <th class="py-2 px-4 border-b border-gray-300 text-left">Selling Price</th>
               <th class="py-2 px-4 border-b border-gray-300 text-left">Initial Stock</th>
+              <th class="py-2 px-4 border-b border-gray-300 text-left">remaining Stock</th>
               <th class="py-2 px-4 border-b border-gray-300 text-left">Expiration Date</th>
               <th class="py-2 px-4 border-b border-gray-300 text-center w-20">Actions</th>
             </tr>

@@ -9,7 +9,7 @@
       <thead>
         <tr class="bg-gray-200">
           <th class="border border-gray-300 px-3 py-2">Date</th>
-          <th class="border border-gray-300 px-3 py-2">Product</th>
+          <th class="border border-gray-300 px-3 py-2">Product Name</th>
           <th class="border border-gray-300 px-3 py-2">Quantity</th>
           <th class="border border-gray-300 px-3 py-2">Amount</th>
         </tr>
