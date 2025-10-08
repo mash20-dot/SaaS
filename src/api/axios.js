@@ -6,6 +6,7 @@ const api = axios.create({
     baseURL: 'https://saas-tool-mf02.onrender.com',
     headers: {
         'Content-Type': 'application/json',
+
     },
 })
 
