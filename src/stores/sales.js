@@ -8,7 +8,7 @@ export const useSalesStore = defineStore('sales', {
     actions: {
         async fetchSales() {
             try {
-                const res = await api.get('/sales')
+                const res = await api.get('/stock_manage/stocks/history')
                 this.sales = res.data
             } catch (error) {
                 throw error
