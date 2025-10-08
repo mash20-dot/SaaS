@@ -1,5 +1,39 @@
 <template>
   <MainLayout>
+    <!-- Navigation Buttons -->
+    <nav class="mb-8 flex flex-wrap gap-4 justify-center md:justify-start">
+      <router-link
+        to="/dashboard"
+        class="btn"
+        :class="{ 'bg-primary text-white': isActive('/dashboard') }"
+        >Dashboard</router-link
+      >
+      <router-link
+        to="/products"
+        class="btn"
+        :class="{ 'bg-primary text-white': isActive('/products') }"
+        >Products</router-link
+      >
+      <router-link
+        to="/sales"
+        class="btn"
+        :class="{ 'bg-primary text-white': isActive('/sales') }"
+        >Sales</router-link
+      >
+      <router-link
+        to="/analytics"
+        class="btn"
+        :class="{ 'bg-primary text-white': isActive('/analytics') }"
+        >Analytics</router-link
+      >
+      <router-link
+        to="/alerts"
+        class="btn"
+        :class="{ 'bg-primary text-white': isActive('/alerts') }"
+        >Alerts</router-link
+      >
+    </nav>
+
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <div class="bg-gray-100 p-4 rounded shadow text-center">
         <h3 class="text-lg font-semibold mb-2">Total Products</h3>
@@ -43,12 +77,14 @@
 
 <script setup>
 import { onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import MainLayout from '../layouts/MainLayout.vue'
 import { useProductsStore } from '../stores/products'
 import { useSalesStore } from '../stores/sales'
 
 const productsStore = useProductsStore()
 const salesStore = useSalesStore()
+const route = useRoute()
 
 onMounted(async () => {
   await productsStore.fetchProducts()
@@ -67,8 +103,16 @@ function formatDate(dateStr) {
   const date = new Date(dateStr)
   return date.toLocaleDateString()
 }
+
+function isActive(path) {
+  return route.path === path
+}
 </script>
 
 <style scoped>
-/* Optional: add some table styling if needed */
+.btn {
+  @apply px-4 py-2 rounded border border-primary text-primary hover:bg-primary hover:text-white transition;
+  text-decoration: none;
+  font-weight: 600;
+}
 </style>
