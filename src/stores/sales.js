@@ -16,7 +16,14 @@ export const useSalesStore = defineStore('sales', {
         },
         async addSale(sale) {
             try {
-                const res = await api.post('/sales', sale)
+                const payload = {
+                    product_name: sale.product_name,
+                    quantity: sale.quantity
+                }
+
+
+
+                const res = await api.post('/stock_manage/stocks', payload)
                 this.sales.push(res.data)
             } catch (error) {
                 throw error

@@ -4,13 +4,24 @@
       <h3 class="text-xl font-semibold mb-4">Record Sale</h3>
       <form @submit.prevent="onSubmit" class="space-y-4">
         <div>
-          <label for="product" class="block mb-1 font-medium">Product Name</label>
-          <select v-model="form.productId" id="product_name" required class="w-full border border-gray-300 rounded px-3 py-2">
+          <label for="product_name" class="block mb-1 font-medium">Product Name</label>
+          <select 
+            v-model="form.product_name" 
+            id="product_name" 
+            required 
+            class="w-full border border-gray-300 rounded px-3 py-2"
+          >
             <option value="" disabled>Select product</option>
-            <option v-for="product in productsStore.products" :key="product.id" :value="product.id">{{ product.name }}</option>
+            <option 
+              v-for="product in productsStore.products" 
+              :key="product.id" 
+              :value="product.product_name"
+            >
+              {{ product.product_name }}
+            </option>
           </select>
         </div>
-        <div>
+         <div>
           <label for="quantity" class="block mb-1 font-medium">Quantity</label>
           <input v-model.number="form.quantity" id="quantity" type="number" min="1" required class="w-full border border-gray-300 rounded px-3 py-2" />
         </div>
