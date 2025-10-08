@@ -8,7 +8,7 @@ export const useProductsStore = defineStore('products', {
     actions: {
         async fetchProducts() {
             try {
-                const res = await api.get('/products')
+                const res = await api.get('/product_view/products')
                 this.products = res.data
             } catch (error) {
                 throw error
@@ -21,8 +21,7 @@ export const useProductsStore = defineStore('products', {
                     product_name: product.product_name,
                     selling_price: product.selling_price,
                     initial_stock: product.initial_stock,
-                    expiration_date: product.expiration_date,
-                    supplier_info: product.description
+                    expiration_date: product.expiration_date
                 }
 
                 const res = await api.post('/product_view/product/post_product', payload)
