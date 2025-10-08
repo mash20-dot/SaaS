@@ -42,7 +42,7 @@ import { useProductsStore } from '../stores/products'
 const productsStore = useProductsStore()
 
 const form = reactive({
-  name: '',
+  product_name: '',
   description: '',
   price: 0,
   stock: 0,
