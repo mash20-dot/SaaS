@@ -4,8 +4,12 @@
       <h2 class="text-2xl font-bold mb-6 text-center">Register</h2>
 
       <div class="mb-4">
-        <label class="block mb-1" for="fullname">Full Name</label>
-        <input v-model="form.fullname" id="fullname" type="text" required class="w-full border border-gray-300 rounded px-3 py-2" />
+        <label class="block mb-1" for="fullname">First Name</label>
+        <input v-model="form.firstname" id="firstname" type="text" required class="w-full border border-gray-300 rounded px-3 py-2" />
+      </div>
+      <div class="mb-4">
+        <label class="block mb-1" for="fullname">Last Name</label>
+        <input v-model="form.lastname" id="lastname" type="text" required class="w-full border border-gray-300 rounded px-3 py-2" />
       </div>
 
       <div class="mb-4">
@@ -51,11 +55,12 @@ import { useAuthStore } from '../stores/auth'
 import { useRouter } from 'vue-router'
 
 const form = reactive({
-  fullname: '',
+  firstname: '',
+  lastname: '',
   email: '',
   phone: '',
   location: '',
-  businessName: '',
+  business_name: '',
   password: '',
 })
 
