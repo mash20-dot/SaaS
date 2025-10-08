@@ -8,17 +8,17 @@ export default {
         extend: {
             colors: {
                 primary: {
-                    50: '#f7fee7',
-                    100: '#ecfccb',
-                    200: '#d9f99d',
-                    300: '#bef264',
-                    400: '#a3e635',
-                    500: '#84cc16', // Bright lime green - main color
-                    600: '#65a30d',
-                    700: '#4d7c0f',
-                    800: '#3f6212',
-                    900: '#365314',
-                    DEFAULT: '#84cc16',
+                    50: '#f0ffe6',
+                    100: '#dfffcc',
+                    200: '#bfff99',
+                    300: '#9fff66',
+                    400: '#7fff33',
+                    500: '#39FF14', // Exact neon green from image
+                    600: '#2ecc10',
+                    700: '#23990c',
+                    800: '#186608',
+                    900: '#0d3304',
+                    DEFAULT: '#39FF14',
                 },
                 dark: {
                     50: '#18181b',
@@ -34,10 +34,10 @@ export default {
                     DEFAULT: '#000000',
                 },
                 accent: {
-                    light: '#d9f99d', // Lighter lime for highlights
-                    DEFAULT: '#84cc16', // Main bright lime green
-                    dark: '#65a30d', // Darker lime for hover states
-                    neon: '#bef264', // Extra bright for special effects
+                    light: '#bfff99', // Lighter lime for highlights
+                    DEFAULT: '#39FF14', // Exact neon green from image
+                    dark: '#2ecc10', // Darker lime for hover states
+                    neon: '#7fff33', // Extra bright for special effects
                 },
                 neutral: {
                     light: '#fafafa',
@@ -49,15 +49,15 @@ export default {
                 sans: ['Inter', 'Poppins', 'ui-sans-serif', 'system-ui']
             },
             backgroundImage: {
-                'gradient-green': 'linear-gradient(135deg, #84cc16 0%, #65a30d 100%)',
+                'gradient-green': 'linear-gradient(135deg, #39FF14 0%, #2ecc10 100%)',
                 'gradient-dark': 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
-                'gradient-mesh': 'radial-gradient(at 40% 20%, #84cc16 0px, transparent 50%), radial-gradient(at 80% 0%, #000000 0px, transparent 50%), radial-gradient(at 0% 50%, #bef264 0px, transparent 50%)',
-                'gradient-lime': 'linear-gradient(135deg, #bef264 0%, #84cc16 100%)',
+                'gradient-mesh': 'radial-gradient(at 40% 20%, #39FF14 0px, transparent 50%), radial-gradient(at 80% 0%, #000000 0px, transparent 50%), radial-gradient(at 0% 50%, #7fff33 0px, transparent 50%)',
+                'gradient-lime': 'linear-gradient(135deg, #7fff33 0%, #39FF14 100%)',
             },
             boxShadow: {
-                'green': '0 4px 14px 0 rgba(132, 204, 22, 0.4)',
-                'green-lg': '0 10px 30px rgba(132, 204, 22, 0.35)',
-                'green-glow': '0 0 20px rgba(132, 204, 22, 0.5)',
+                'green': '0 4px 14px 0 rgba(57, 255, 20, 0.4)',
+                'green-lg': '0 10px 30px rgba(57, 255, 20, 0.35)',
+                'green-glow': '0 0 20px rgba(57, 255, 20, 0.6)',
                 'dark': '0 4px 14px 0 rgba(0, 0, 0, 0.25)',
                 'dark-lg': '0 10px 30px rgba(0, 0, 0, 0.4)',
             },
