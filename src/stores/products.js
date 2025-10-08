@@ -16,7 +16,7 @@ export const useProductsStore = defineStore('products', {
         },
         async addProduct(product) {
             try {
-                const res = await api.post('/products', product)
+                const res = await api.post('/product_view/product/post_product', product)
                 this.products.push(res.data)
             } catch (error) {
                 throw error
