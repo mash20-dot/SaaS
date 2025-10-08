@@ -58,7 +58,7 @@
               <th class="py-2 px-4 border-b border-gray-300 text-left">Product Name</th>
               <th class="py-2 px-4 border-b border-gray-300 text-left">Selling Price</th>
               <th class="py-2 px-4 border-b border-gray-300 text-left">Initial Stock</th>
-              <th class="py-2 px-4 border-b border-gray-300 text-left">remaining Stock</th>
+              <th class="py-2 px-4 border-b border-gray-300 text-left">Remaining Stock</th>
               <th class="py-2 px-4 border-b border-gray-300 text-left">Expiration Date</th>
               <th class="py-2 px-4 border-b border-gray-300 text-center w-20">Actions</th>
             </tr>
@@ -113,6 +113,24 @@
                 </template>
                 <template v-else>{{ product.initial_stock }}</template>
               </td>
+
+              <!-- Remaining Stock -->
+              <td class="py-2 px-4 border-b border-gray-300">
+                <template v-if="editRowId === product.id && editField === 'remaining_stock'">
+                  <input
+                    v-model.number="editedValue"
+                    type="number"
+                    min="0"
+                    step="1"
+                    class="border rounded px-2 py-1 w-full"
+                    @keyup.enter="saveEdit(product.id, 'remaining_stock')"
+                    @keyup.esc="cancelEdit"
+                    autofocus
+                  />
+                </template>
+                <template v-else>{{ product.remaining_stock }}</template>
+              </td>
+
 
               <!-- Expiration Date -->
               <td class="py-2 px-4 border-b border-gray-300">
