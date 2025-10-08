@@ -57,15 +57,15 @@ onMounted(() => {
 async function onSubmit() {
   error.value = ''
   try {
-    const product = productsStore.products.find(p => p.id === form.productId)
+    const product = productsStore.products.find(p => p.product_name === form.product_name)
     if (!product) {
       error.value = 'Invalid product selected'
       return
     }
     const saleData = {
-      productId: form.productId,
+      product_name: form.product_name,
       quantity: form.quantity,
-      amount: product.price * form.quantity,
+      //amount: product.price * form.quantity,
       date: new Date().toISOString(),
     }
     await salesStore.addSale(saleData)

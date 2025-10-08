@@ -28,7 +28,7 @@ function prepareChartData(sales) {
 
   return { dates, amounts }
 }
-
+                                                        
 function renderChart() {
   if (chartInstance) {
     chartInstance.destroy()

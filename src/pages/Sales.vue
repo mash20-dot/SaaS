@@ -17,7 +17,7 @@
       <tbody>
         <tr v-for="sale in salesStore.sales" :key="sale.id">
           <td class="border border-gray-300 px-3 py-2">{{ new Date(sale.date).toLocaleDateString() }}</td>
-          <td class="border border-gray-300 px-3 py-2">{{ sale.productName }}</td>
+          <td class="border border-gray-300 px-3 py-2">{{ sale.product_name }}</td>
           <td class="border border-gray-300 px-3 py-2">{{ sale.quantity }}</td>
           <td class="border border-gray-300 px-3 py-2">${{ sale.amount.toFixed(2) }}</td>
         </tr>
