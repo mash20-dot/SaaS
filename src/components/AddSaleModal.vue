@@ -10,6 +10,7 @@
             id="product_name" 
             required 
             class="w-full border border-gray-300 rounded px-3 py-2"
+            :disabled="loading"
           >
             <option value="" disabled>Select product</option>
             <option 
@@ -23,11 +24,33 @@
         </div>
          <div>
           <label for="quantity" class="block mb-1 font-medium">Quantity</label>
-          <input v-model.number="form.quantity" id="quantity" type="number" min="1" required class="w-full border border-gray-300 rounded px-3 py-2" />
+          <input 
+            v-model.number="form.quantity" 
+            id="quantity" 
+            type="number" 
+            min="1" 
+            required 
+            class="w-full border border-gray-300 rounded px-3 py-2"
+            :disabled="loading"
+          />
         </div>
-        <div class="flex justify-end space-x-3">
-          <button type="button" @click="$emit('close')" class="px-4 py-2 rounded border border-gray-400 hover:bg-gray-100">Cancel</button>
-          <button type="submit" class="px-4 py-2 rounded bg-primary text-white hover:bg-primary-dark">Record</button>
+        <div class="flex justify-end space-x-3 items-center">
+          <button 
+            type="button" 
+            @click="$emit('close')" 
+            class="px-4 py-2 rounded border border-gray-400 hover:bg-gray-100"
+            :disabled="loading"
+          >
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="px-4 py-2 rounded bg-primary text-white hover:bg-primary-dark flex items-center"
+            :disabled="loading"
+          >
+            <span v-if="loading" class="mr-2 animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+            {{ loading ? 'Recording...' : 'Record' }}
+          </button>
         </div>
         <p v-if="error" class="text-red-600 mt-2">{{ error }}</p>
       </form>
@@ -37,18 +60,21 @@
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useSalesStore } from '../stores/sales'
 import { useProductsStore } from '../stores/products'
 
 const salesStore = useSalesStore()
 const productsStore = useProductsStore()
+const router = useRouter()
 
 const form = reactive({
-  productId: '',
+  product_name: '',
   quantity: 1,
 })
 
 const error = ref('')
+const loading = ref(false)
 
 onMounted(() => {
   productsStore.fetchProducts()
@@ -56,22 +82,26 @@ onMounted(() => {
 
 async function onSubmit() {
   error.value = ''
+  loading.value = true
   try {
     const product = productsStore.products.find(p => p.product_name === form.product_name)
     if (!product) {
       error.value = 'Invalid product selected'
+      loading.value = false
       return
     }
     const saleData = {
       product_name: form.product_name,
       quantity: form.quantity,
-      //amount: product.price * form.quantity,
       date: new Date().toISOString(),
     }
     await salesStore.addSale(saleData)
-    $emit('added')
+
+    // Redirect to dashboard with success message as query param
+    router.push({ path: '/dashboard', query: { saleSuccess: 'Sale recorded successfully!' } })
   } catch (err) {
     error.value = err.response?.data?.message || 'Failed to record sale'
+    loading.value = false
   }
 }
 </script>
