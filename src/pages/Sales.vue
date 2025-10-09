@@ -5,21 +5,27 @@
       <button @click="showAddSale = true" class="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark">Record Sale</button>
     </div>
 
-    <table class="w-full border-collapse border border-gray-300 mb-6">
+    <div v-if="errorMessage" class="mb-4 p-3 bg-yellow-100 text-yellow-800 rounded border border-yellow-300">
+      {{ errorMessage }}
+    </div>
+
+    <table v-if="!errorMessage" class="w-full border-collapse border border-gray-300 mb-6">
       <thead>
         <tr class="bg-gray-200">
-          <th class="border border-gray-300 px-3 py-2">Date</th>
           <th class="border border-gray-300 px-3 py-2">Product Name</th>
           <th class="border border-gray-300 px-3 py-2">Quantity</th>
-          <th class="border border-gray-300 px-3 py-2">Amount</th>
+          <th class="border border-gray-300 px-3 py-2">Unit Price</th>
+          <th class="border border-gray-300 px-3 py-2">Total Price</th>
+          <th class="border border-gray-300 px-3 py-2">Date</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="sale in salesStore.sales" :key="sale.id">
-          <td class="border border-gray-300 px-3 py-2">{{ new Date(sale.date).toLocaleDateString() }}</td>
           <td class="border border-gray-300 px-3 py-2">{{ sale.product_name }}</td>
           <td class="border border-gray-300 px-3 py-2">{{ sale.quantity }}</td>
-          <td class="border border-gray-300 px-3 py-2">${{ sale.amount.toFixed(2) }}</td>
+          <td class="border border-gray-300 px-3 py-2">${{ sale.unit_price.toFixed(2) }}</td>
+          <td class="border border-gray-300 px-3 py-2">${{ sale.total_price.toFixed(2) }}</td>
+          <td class="border border-gray-300 px-3 py-2">{{ new Date(sale.date).toLocaleDateString() }}</td>
         </tr>
       </tbody>
     </table>
@@ -36,9 +42,19 @@ import AddSaleModal from '../components/AddSaleModal.vue'
 
 const salesStore = useSalesStore()
 const showAddSale = ref(false)
+const errorMessage = ref('')
 
 async function fetchSales() {
-  await salesStore.fetchSales()
+  errorMessage.value = ''
+  try {
+    await salesStore.fetchSales()
+  } catch (error) {
+    if (error.response?.status === 400) {
+      errorMessage.value = 'This feature is available for premium users only. Please upgrade your subscription.'
+    } else {
+      errorMessage.value = 'Failed to load sales data. Please try again later.'
+    }
+  }
 }
 
 onMounted(() => {
