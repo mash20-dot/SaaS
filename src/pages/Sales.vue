@@ -49,7 +49,7 @@ async function fetchSales() {
   try {
     await salesStore.fetchSales()
   } catch (error) {
-    if (error.response?.status === 400) {
+    if (error.response?.status === 403) {
       errorMessage.value = 'This feature is available for premium users only. Please upgrade your subscription.'
     } else {
       errorMessage.value = 'Failed to load sales data. Please try again later.'
