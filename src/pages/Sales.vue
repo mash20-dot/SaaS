@@ -5,8 +5,14 @@
       <button @click="showAddSale = true" class="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark">Record Sale</button>
     </div>
 
-    <div v-if="errorMessage" class="mb-4 p-3 bg-yellow-100 text-yellow-800 rounded border border-yellow-300">
-      {{ errorMessage }}
+    <div v-if="errorMessage" class="mb-4 p-3 bg-yellow-100 text-yellow-800 rounded border border-yellow-300 space-y-2">
+      <p>{{ errorMessage }}</p>
+      <router-link
+        to="/pricing"
+        class="inline-block text-primary font-semibold underline hover:text-primary-dark"
+      >
+        View Pricing Plans
+      </router-link>
     </div>
 
     <table v-if="!errorMessage" class="w-full border-collapse border border-gray-300 mb-6">
