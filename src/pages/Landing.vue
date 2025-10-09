@@ -53,7 +53,7 @@
       <section class="container mx-auto px-6 py-16 bg-gray-50">
         <div class="max-w-6xl mx-auto">
           <div class="text-center mb-16">
-            <h2 class="text-4xl font-bold text-gray-900 mb-4">Built for Ghana's Growing Businesses</h2>
+            <h2 class="text-4xl font-bold text-gray-900 mb-4">Built for Africa's Growing Businesses</h2>
             <p class="text-gray-600 text-lg max-w-2xl mx-auto">
               Whether you run a retail shop, wholesale business, or online store, NkwaBiz adapts to your workflow and scales with your success.
             </p>
