@@ -34,6 +34,11 @@
       >
     </nav>
 
+    <!-- Success message after recording a sale -->
+    <div v-if="saleSuccessMessage" class="mb-6 p-4 bg-green-100 text-green-800 rounded">
+      {{ saleSuccessMessage }}
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <div class="bg-gray-100 p-4 rounded shadow text-center">
         <h3 class="text-lg font-semibold mb-2">Total Products</h3>
@@ -131,7 +136,6 @@
                 <template v-else>{{ product.remaining_stock }}</template>
               </td>
 
-
               <!-- Expiration Date -->
               <td class="py-2 px-4 border-b border-gray-300">
                 <template v-if="editRowId === product.id && editField === 'expiration_date'">
@@ -227,9 +231,21 @@ const productsStore = useProductsStore()
 const salesStore = useSalesStore()
 const route = useRoute()
 
+const saleSuccessMessage = ref('')
+
 onMounted(async () => {
   await productsStore.fetchProducts()
   await salesStore.fetchSales()
+
+  if (route.query.saleSuccess) {
+    saleSuccessMessage.value = route.query.saleSuccess
+
+    // Clear message & remove query param after 5 seconds
+    setTimeout(() => {
+      saleSuccessMessage.value = ''
+      history.replaceState(null, '', route.path)
+    }, 5000)
+  }
 })
 
 const productsCount = computed(() => productsStore.products.length)
